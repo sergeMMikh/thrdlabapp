@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Furnace List</title>
+</head>
+<body>
+<h1>Furnace List:</h1>
+<p>Please, use the following form to make or change
+    <a href="{% url 'admin:index' %}">booking.</a>
+    <br>
+    <br>
+    <a>One person can book a furnace for a maximum of 3 days!</a>
+    <br>
+    <br>
+
+<table>
+
+    <tbody>
+    <tr>
+        <th>Laboratory</th>
+        <th>Furnace</th>
+    </tr>
+    {% for furnace in furnaces %}
+    <tr>
+        <td>&nbsp;&nbsp;{{ furnace.location }}&nbsp;&nbsp;</td>
+        <td>&nbsp;&nbsp;
+            <a href="{% url 'furnace'%}?furnace={{furnace.furnace_name}}">{{furnace.furnace_name}}</a>
+            &nbsp;&nbsp;
+        </td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+
+</body>
+</html>

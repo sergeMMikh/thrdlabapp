@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{furnace.furnace_name}}</title>
+</head>
+<body>
+
+<div class="container">
+    <a style="margin-left: 500px;"></a>
+    <a class="button button-primary" ; href="{% url 'home' %}">
+        <button>To main
+    </a>
+</div>
+<h2>Booking list for {{furnace_name}}</h2>
+{% if not furnace.serviceable %}
+<h2>
+    <span style="color: red;">
+        The {{furnace.furnace_name}} is Out of service now!
+    </span>
+</h2>
+{% endif %}
+<p>Please, use the following form to make or change
+    <a href="{% url 'admin:index' %}">booking.</a>
+    <br>
+    <br>
+    <b>Today: {{date_today}}</b>
+    <br>
+<table>
+    <colgroup style="background-color: #ddd;">
+        <col>
+        <col style="background-color: #ccc;">
+        <col>
+        <col style="background-color: #ccc;">
+    </colgroup>
+    <tbody>
+    <tr>
+        <th>Furnace</th>
+        <th>Booking Date</th>
+        <th>Name</th>
+        <th>Comments</th>
+    </tr>
+    {% for book in booking_list %}
+    {% if book.date == date_today %}
+    <tr>
+        <td>&nbsp;&nbsp;<b>{{ furnace.furnace_name }}</b>&nbsp;&nbsp;</td>
+        <td>&nbsp;&nbsp;<b>{{ book.date }}&nbsp;</b>&nbsp;</td>
+        <td>&nbsp;&nbsp;<b>{{ book.user}}&nbsp;</b>&nbsp;</td>
+        <td>&nbsp;&nbsp;<b><i>{{ book.comment}}</b></i>&nbsp;&nbsp;</td>
+    </tr>
+    {% else %}
+    <tr>
+        <td>&nbsp;&nbsp;{{ furnace.furnace_name }}&nbsp;&nbsp;</td>
+        <td>&nbsp;&nbsp;{{ book.date }}&nbsp;&nbsp;</td>
+        <td>&nbsp;&nbsp;{{ book.user}}&nbsp;&nbsp;</td>
+        <td>&nbsp;&nbsp;<i>{{ book.comment}}</i>&nbsp;&nbsp;</td>
+    </tr>
+    {% endif %}
+    {% endfor %}
+    </tbody>
+</table>
+<br>
+<a style="margin-left: 500px;"></a>
+<a href="{% url 'home' %}">
+    <button>To main
+</a>
+
+</body>
+</html>
