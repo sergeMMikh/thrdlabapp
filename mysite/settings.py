@@ -83,11 +83,11 @@ WSGI_APPLICATION = 'mysite.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': os.environ["PGDATABASE"],
-        'USER': os.environ["PGUSER"],
-        'PASSWORD': os.environ["PGPASSWORD"],
-        'HOST': os.environ["PGHOST"],
-        'PORT': os.environ["PGPORT"],
+        'NAME': os.environ.get("PGDATABASE", default="electrochemistry_lab"),
+        'USER': os.environ.get("PGUSER", default="postgres"),
+        'PASSWORD': os.environ.get("PGPASSWORD", default="vrag"),
+        'HOST': os.environ.get("PGHOST", default="localhost"),
+        'PORT': os.environ.get("PGPORT", default="5432"),
     }
 }
 
