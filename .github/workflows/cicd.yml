@@ -7,24 +7,6 @@ on:
 
 jobs:
   tests:
-    runs-on: ubuntu-latest
-    env:
-      POSTGRES_DB: "electrochemistry_lab"
-      POSTGRES_HOST: localhost
-      POSTGRES_USER: "postgres"
-      POSTGRES_PASSWORD: "secret"
-      POSTGRES_PORT: 5432
-      SECRET_KEY: "u5mzja-b1ef72*pe$j12u=fecgp+3h4@p_a+1k%zlwbpu0no$z"
-      ALLOWED_HOSTS: "localhost"
-    services:
-      postgres:
-        image: postgres:latest
-        env:
-          POSTGRES_DB: ${{ env.POSTGRES_DB }}
-          POSTGRES_USER: ${{ env.POSTGRES_USER }}
-          POSTGRES_PASSWORD: ${{ env.POSTGRES_PASSWORD }}
-          POSTGRES_PORT: ${{ env.POSTGRES_PORT }}
-
     steps:
 
       - name: Check updates
@@ -43,31 +25,5 @@ jobs:
       - name: Linting of code
         run: flake8
 
-      - name: 'Create env file'
-        run: |
-          touch .env
-          echo SECRET_KEY=${{ env.SECRET_KEY }}  >> .env
-          echo DEBUG=True >> .env
-          echo ALLOWED_HOSTS=${{ env.ALLOWED_HOSTS }}  >> .env
-          echo DB_ENGINE=django.db.backends.postgresql  >> .env
-          echo DB_NAME=${{ env.POSTGRES_DB }}  >> .env
-          echo DB_HOST=${{ env.POSTGRES_HOST }}  >> .env
-          echo DB_PORT=${{ env.POSTGRES_PORT }}  >> .env
-          echo DB_USER=${{ env.POSTGRES_USER }}  >> .env
-          echo DB_PASSWORD=${{ env.POSTGRES_PASSWORD }}  >> .env
-          cat .env
-
       - name: Testing
         run: pytest
-        env:
-          SECRET_KEY: ${{ env.SECRET_KEY }}
-          DEBUG: 0
-          ALLOWED_HOSTS: ${{ env.ALLOWED_HOSTS }}
-          DB_ENGINE: django.db.backends.postgresql
-          DB_NAME: ${{ env.POSTGRES_DB }}
-          DB_HOST: ${{ env.POSTGRES_HOST }}
-          DB_PORT: ${{ env.POSTGRES_PORT }}
-          DB_USER: ${{ env.POSTGRES_USER }}
-          DB_PASSWORD: ${{ env.POSTGRES_PASSWORD }}
-
-
