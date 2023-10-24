@@ -21,4 +21,6 @@ aside .smm{
     font-size: 40px;
     margin-left: 10px;
     font-weight: bold;
+    position: relative;
+    top: -5px;
 }
