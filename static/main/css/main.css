@@ -38,8 +38,12 @@ aside ul li {
     color: #fff;
     display: block;
     margin-top: 20px;
-    text-decoration: none;
     transition: all .6s ease;
+}
+
+aside ul a {
+    color: #fff;
+    text-decoration: none;
 }
 
 aside ul li:hover, aside ul a:hover {
