@@ -24,3 +24,8 @@ aside .smm{
     position: relative;
     top: 10px;
 }
+
+aside h3 {
+    margin-top: 50px;
+    font-size: 28px;
+}
