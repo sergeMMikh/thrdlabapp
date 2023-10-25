@@ -47,7 +47,7 @@ aside ul a {
 }
 
 aside ul li:hover, aside ul a:hover {
-    color: #082977;
+    color: #848484;
     text-decoration: none;
     transform: scale(1.05);
 }
