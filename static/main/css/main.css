@@ -1,22 +1,30 @@
+/* Base background */
 body {
-    background: #848484;
+    background: #fefefe;
 }
 
+/* Side bar */
 aside {
     float: left;
-    background: #2c2c2c;
+    background: #F56231;
     width: 20%;
     padding: 2.5%;
-    height: 100vh;
+    height: 100vh; /* 100% */
     color: #fff;
-    border-right: 5px solid #4d4d4d;
+    background-image: url(../img/side_bar_img.png);
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+    border-right: 5px solid #faa20d;
 }
 
+/* logo */
 aside img{
     float: left;
     width: 80px;
 }
 
+/* Logo text */
 aside .smm{
     font-size: 40px;
     margin-left: 10px;
@@ -25,15 +33,18 @@ aside .smm{
     top: 10px;
 }
 
+/* h3 headers "Navigation*/
 aside h3 {
     margin-top: 50px;
-    font-size: 28px;
+    font-size: 30px;
 }
 
+/* List of urls */
 aside ul {
     list-style: none
 }
 
+/* list elements */
 aside ul li {
     color: #fff;
     display: block;
@@ -46,15 +57,16 @@ aside ul a {
     text-decoration: none;
 }
 
+/* touch effect */
 aside ul li:hover, aside ul a:hover {
-    color: #848484;
+    color: #faa20d;
     text-decoration: none;
-    transform: scale(1.05);
+    transform: scale(1.02);
 }
 
 main .features{
     float: left;
-    color: #fff;
+    color: #000000;
     margin-top: 100px;
     text-align: center;
     width: 75%;
