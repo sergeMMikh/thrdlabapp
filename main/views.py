@@ -6,25 +6,27 @@ from django.shortcuts import render
 
 def index(request):
     content = {
-        'title': 'Home'
+        'title': 'Home',
     }
     return render(request, 'main/index.html', content)
 
 
 def about(request):
     content = {
-        'title': 'About'
+        'title': 'About',
     }
     return render(request, 'main/about.html', content)
 
+
 def contacts(request):
     content = {
-        'title': 'Contacts'
+        'title': 'Contacts',
     }
     return render(request, 'main/contacts.html', content)
 
+
 def furnaces(request):
     content = {
-        'title': 'Furnaces'
+        'title': 'Furnaces',
     }
     return render(request, 'main/furnaces.html', content)
