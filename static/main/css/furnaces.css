@@ -37,7 +37,7 @@ aside .smm{
 /* h3 headers "Navigation*/
 aside h3 {
     margin-top: 50px;
-    /*font-size: 30px;*/
+    font-size: 30px;
     font-weight: bold;
 }
 
@@ -49,7 +49,7 @@ aside ul {
 /* list elements */
 aside ul li {
     color: #fff;
-    font-size: 100px;
+    font-size: 130%;
     font-weight: bold;
     display: block;
     margin-top: 20px;
