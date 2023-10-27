@@ -49,8 +49,8 @@ aside ul {
 /* list elements */
 aside ul li {
     color: #fff;
-    /*font-size: 25px;
-    font-weight: bold;*/
+    font-size: 100px;
+    font-weight: bold;
     display: block;
     margin-top: 20px;
     transition: transform .5s ease;
