@@ -1,0 +1,17 @@
+{% extends 'main/layout.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+    <div class="features">
+        <h1>{{ title }}</h1>
+        <form method="post">
+          <input type="text" placeholder="Title" class="form-control"><br>
+          <input type="text" placeholder="Anonce" class="form-control"><br>
+          <textarea class="form-control" placeholder="Text of article"></textarea><br>
+          <input type="date" class="form-control"></input><br>
+          <input type="text" class="form-control"></input>
+          <button class="btn btn-success" type="submit"> Submit</button>
+        </form>
+    </div>
+{% endblock %}
