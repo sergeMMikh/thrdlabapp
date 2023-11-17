@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from .models import Articles
-
+from .forms import ArticlesForm
 
 def news_home(request):
     news = Articles.objects.order_by('-date')[:5]
@@ -11,9 +11,10 @@ def news_home(request):
     return render(request, 'news/news_home.html', content)
 
 def create_news(request):
-    news = Articles.objects.order_by('-date')[:5]
+    form = ArticlesForm()
     content = {
         'title': 'New news craetion.',
-        'news': news,
+        'form': form,
+        # 'news': news,
     }
     return render(request, 'news/create_news.html', content)
