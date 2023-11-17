@@ -12,14 +12,7 @@
     <aside>
         <img src="{% static 'main/img/4whatsapp.png' %}" alt="SMM">
         <span class="smm">Laboratory of Electrochemistry</span>
-        <h3>Navigation</h3>
-        <ul>
-            <a href="{% url 'home' %}"><li><i class="fas fa-home"></i> Home</li></a>
-            <a href="{% url 'furnaces' %}"><li><i class="fa-solid fa-box-archive fa-rotate-180"></i> Furnaces booking</li></a>
-            <a href="{% url 'news_home' %}"><li><i class="fa-solid fa-newspaper"></i> News</li></a>
-            <a href="{% url 'about' %}"><li><i class="fas fa-address-card"></i> About</li></a>
-            <a href="{% url 'contacts' %}"><li><i class="fas fa-paper-plane"></i> Contacts</li></a>
-        </ul>        
+        {% include 'main/navigation.html' %}
     </aside>
     <main>
         {% block content %}
