@@ -1,7 +1,6 @@
 from django.db import models
 
 
-
 class Articles(models.Model):
     title = models.CharField(verbose_name='Title', max_length=100, default='News')
     date = models.DateField(verbose_name='Data')

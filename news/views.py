@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from .models import Articles
 from .forms import ArticlesForm
 
+
 def news_home(request):
     news = Articles.objects.order_by('-date')[:5]
     content = {
@@ -10,8 +11,8 @@ def news_home(request):
     }
     return render(request, 'news/news_home.html', content)
 
-def create_news(request):
 
+def create_news(request):
     error = ''
     if request.method == 'POST':
         form = ArticlesForm(request.POST)
@@ -25,6 +26,6 @@ def create_news(request):
     content = {
         'title': 'New news craetion.',
         'form': form,
-        'error': error
+        'error': error,
     }
     return render(request, 'news/create_news.html', content)
