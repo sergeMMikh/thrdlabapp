@@ -1,6 +1,13 @@
 from django.shortcuts import render, redirect
 from .models import Articles
 from .forms import ArticlesForm
+from django.views.generic import DetailView
+
+
+class NewsDetailView(DetailView):
+    model = Articles
+    template_name = 'news/details_view.html'
+    context_object_name = 'article'
 
 
 def news_home(request):
