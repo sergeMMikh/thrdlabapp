@@ -13,7 +13,6 @@ class NewsDetailView(DetailView):
 class NewsUpdateView(UpdateView):
     model = Articles
     template_name = 'news/create_news.html'
-
     form_class = ArticlesForm
 
 
