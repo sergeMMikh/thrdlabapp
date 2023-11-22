@@ -5,7 +5,8 @@ from django.forms import ModelForm, TextInput, DateTimeInput, Textarea
 class ArticlesForm(ModelForm):
     class Meta:
         model = Articles
-        fields = ['title', 'anons', 'full_text', 'date']
+        # fields = ['title', 'anons', 'full_text', 'date']
+        fields = ('__all__')
 
         widgets = {
             "title": TextInput(
