@@ -11,7 +11,6 @@ class NewsDetailView(DetailView):
 
 
 class NewsUpdateView(UpdateView):
-    print('**************')
     model = Articles
     template_name = 'news/create_news.html'
 
