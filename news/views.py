@@ -15,6 +15,7 @@ class NewsUpdateView(UpdateView):
     template_name = 'news/create_news.html'
     form_class = ArticlesForm
 
+
 class NewsDeleteView(DeleteView):
     model = Articles
     success_url = '/news/'
