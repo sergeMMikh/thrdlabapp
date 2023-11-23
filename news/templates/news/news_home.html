@@ -5,7 +5,7 @@
 {% block content %}
     <div class="features">
         <h1>{{ title }}</h1>
-        <a href="{% url 'create_news' %}"><li><button class="btn btn-warning"><i class="fas fa-plus-circle"></i> Add</button></li></a>
+        <a href="{% url 'create_news' %}"><button class="btn btn-warning"><i class="fas fa-plus-circle"></i> Add</button></li></a>
         {% if news %}
             {% for atc in news %}
                 <div class="alert alert-warning">

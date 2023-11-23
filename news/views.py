@@ -43,7 +43,7 @@ def create_news(request):
 
     form = ArticlesForm()
     content = {
-        'title': 'New news craetion.',
+        'title': 'New news creation.',
         'form': form,
         'error': error,
     }
