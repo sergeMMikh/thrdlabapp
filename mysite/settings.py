@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'main',
     'furnace_booking',
     'news',
+    'users',
 
 ]
 
