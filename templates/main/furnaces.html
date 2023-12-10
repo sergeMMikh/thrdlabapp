@@ -4,8 +4,33 @@
 
 {% block content %}
     <div class="features">
-        <h1>Booking list.</h1>
-        <p>On this page you can check a furnaces booking list.</p>
+        <h1>Furnace List:</h1>
+<p>Please, use the following form to make or change
+    <a href="{% url 'admin:index' %}">booking.</a>
+    <br>
+    <br>
+    <a>One person can book a furnace for a maximum of 3 days!</a>
+    <br>
+    <br>
+
+<table>
+
+    <tbody>
+    <tr>
+        <th>Laboratory</th>
+        <th>Furnace</th>
+    </tr>
+    {% for furnace in furnaces %}
+    <tr>
+        <td>&nbsp;&nbsp;{{ furnace.location }}&nbsp;&nbsp;</td>
+        <td>&nbsp;&nbsp;
+            <a href="{% url 'furnace'%}?furnace={{furnace.furnace_name}}">{{furnace.furnace_name}}</a>
+            &nbsp;&nbsp;
+        </td>
+    </tr>
+    {% endfor %}
+    </tbody>
+</table>
         <a href="{% url 'home' %}">
             <button class="btn btn-primary" href="{% url 'home' %}">Home</button>
         </a>
