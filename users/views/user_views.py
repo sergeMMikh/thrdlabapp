@@ -33,10 +33,10 @@ from django.contrib.sites.shortcuts import get_current_site
 
 class LoginAccount(APIView):
     """
-    Класс для авторизации пользователей
+    User autorization
     """
 
-    # Авторизация методом POST
+    # User autorization by POST
     def post(self, request, *args, **kwargs):
 
         if {'email', 'password'}.issubset(request.data):
@@ -70,20 +70,20 @@ class LoginAccount(APIView):
 
 class RegisterAccount(APIView):
     """
-    Для регистрации покупателей
+    Users registration
     """
 
-    # Регистрация методом POST
+    # Regisration by POST method
     def post(self, request, *args, **kwargs):
 
-        # проверяем обязательные аргументы
-        if {'first_name',
+        # check args
+        if {
+            'first_name',
             'last_name', 'email',
-            'password', 'company',
-            'position'} \
-                .issubset(request.data):
+            'password',
+            }.issubset(request.data):
 
-            # проверяем пароль на сложность
+            # check password
             try:
                 validate_password(request.data['password'])
             except Exception as password_error:
@@ -96,30 +96,28 @@ class RegisterAccount(APIView):
                      'Errors': {'password': error_array}},
                     status=status.HTTP_400_BAD_REQUEST)
             else:
-                # проверяем данные для уникальности имени пользователя
-                # request.data._mutable = True
+                # check if data are unique
                 request.data.update({})
                 user_serializer = UserSerializer(data=request.data)
                 if user_serializer.is_valid():
-                    # сохраняем пользователя
+                    # save user
                     user = user_serializer.save()
                     user.set_password(request.data['password'])
                     user.save()
                     # verification of email
                     token, _ = Token.objects.get_or_create(user=user)
-                    send_email_4_verification.delay(
-                    # send_email_4_verification(
-                        current_site=get_current_site(request).domain,
-                        user_email=user.email,
-                        token=str(token),
-                    )
+                    # Send e-mail to confirm
+                    # send_email_4_verification.delay(
+                    #     current_site=get_current_site(request).domain,
+                    #     user_email=user.email,
+                    #     token=str(token),
+                    # )
+
                     return JsonResponse(
                         {'Status': True,
                          'Message':
                              'Check your email to complete registration.'},
                         status=status.HTTP_201_CREATED)
-                    # return JsonResponse({'Status': True},
-                    #                     status=status.HTTP_201_CREATED)
                 else:
                     return JsonResponse(
                         {'Status': False,
@@ -208,16 +206,20 @@ class EditUser(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, *args, **kwargs):
-        user = get_object_or_404(User.objects.all(), pk=self.request.user.id)
+        user = get_object_or_404(User.objects.all(),
+                                 pk=self.request.user.id)
         serializer = UserSerializer(instance=user)
         return Response(serializer.data,
                         status=status.HTTP_200_OK)
 
     def post(self, request, *args, **kwargs):
-        user = get_object_or_404(User.objects.all(), pk=self.request.user.id)
+        user = get_object_or_404(User.objects.all(),
+                                 pk=self.request.user.id)
         user_data = self.request.data
 
-        serializer = UserSerializer(instance=user, data=user_data, partial=True)
+        serializer = UserSerializer(instance=user,
+                                    data=user_data,
+                                    partial=True)
 
         if serializer.is_valid():
             serializer.save()
@@ -225,6 +227,22 @@ class EditUser(APIView):
                             status=status.HTTP_201_CREATED)
         return Response(serializer.errors,
                         status=status.HTTP_400_BAD_REQUEST)
+
+    # def delete(self, request, *args, **kwargs):
+    #     user = get_object_or_404(User.objects.all(),
+    #                              pk=self.request.user.id)
+    #     user_data = self.request.data
+    #
+    #     serializer = UserSerializer(instance=user,
+    #                                 data=user_data,
+    #                                 partial=True)
+    #
+    #     if serializer.is_valid():
+    #         serializer.save()
+    #         return Response(serializer.data,
+    #                         status=status.HTTP_200_OK)
+    #     return Response(serializer.errors,
+    #                     status=status.HTTP_400_BAD_REQUEST)
 
 
 class ContactViewSet(ModelViewSet):
