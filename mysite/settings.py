@@ -28,7 +28,8 @@ SECRET_KEY = os.environ.get(
 DEBUG = True
 
 ALLOWED_HOSTS = ['127.0.0.1',
-                 'https://electrochemistry-lab.up.railway.app']
+                 'https://electrochemistry-lab.up.railway.app',
+                'http://electrochemistry-lab.up.railway.app']
 
 AUTH_USER_MODEL = 'users.User'
 
