@@ -40,5 +40,11 @@ class Migration(migrations.Migration):
             managers=[
                 ('objects', django.contrib.auth.models.UserManager()),
             ],
+
+        ),
+        migrations.AddField(
+            model_name='user',
+            name='username',
+            field=models.CharField(default='unknown', max_length=255),  # Change default value as needed
         ),
     ]
