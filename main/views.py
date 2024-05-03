@@ -25,8 +25,8 @@ def contacts(request):
     return render(request, 'main/contacts.html', content)
 
 
-def furnaces(request):
-    content = {
-        'title': 'Furnaces',
-    }
-    return render(request, 'main/furnaces.html', content)
+# def furnaces(request):
+#     content = {
+#         'title': 'Furnaces',
+#     }
+#     return render(request, 'main/furnaces.html', content)
