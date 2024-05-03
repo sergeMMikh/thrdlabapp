@@ -1,4 +1,4 @@
-asgiref==3.5.2
+asgiref
 Django==4.0.4
 gunicorn
 psycopg2-binary
