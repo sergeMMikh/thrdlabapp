@@ -15,6 +15,7 @@ from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.utils.translation import gettext_lazy as _
 from django.db import models
 
+
 class UserManager(BaseUserManager):
     """
     Custom user manager where the username is the email address
@@ -77,7 +78,7 @@ class User(AbstractUser):
         error_messages={
             'unique': _("A user with that username already exists."),
         },
-        default = 'unlnown',
+        default='unlnown',
     )
     # is_active = models.BooleanField(
     #     _('active'),

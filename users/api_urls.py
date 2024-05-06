@@ -29,20 +29,4 @@ urlpatterns = [
                        name='password-reset-confirm'),
                   path('token/', obtain_auth_token),
 
-                  # path('shops', ShopView.as_view(), name='shop-list'),
-                  #
-                  # path('products',
-                  #      ProductInfoViewSet.as_view(), name='products-category'),
-                  # path('products/list', ProductsList.as_view(), name='products-list'),
-                  # path('products/view', ProductsView.as_view(), name='products-view'),
-                  # path('product/view_by_id',
-                  #      SingleProductView.as_view(), name='product-cart-view'),
-                  # path('products/search', ProductInfoViewSet.as_view(), name='products'),
-                  # path('basket', BasketView.as_view(), name='basket'),
-                  # path('order', OrderView.as_view(), name='order'),
-                  #
-                  # path('partner/update', PartnerUpdate.as_view(), name='partner-update'),
-                  # path('partner/state/', PartnerState.as_view(), name='partner-state'),
-                  # path('partner/orders', OrderView.as_view(), name='partner-orders'),
-
               ] + router.urls

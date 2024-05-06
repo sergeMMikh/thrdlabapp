@@ -23,5 +23,3 @@ def contacts(request):
         'title': 'Contacts',
     }
     return render(request, 'main/contacts.html', content)
-
-

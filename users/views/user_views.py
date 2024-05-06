@@ -11,8 +11,8 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 from users.tasks import send_email_4_verification
-from users.serializers import UserSerializer #, ContactSerializer
-from users.models import User, ConfirmEmailToken #, Contact
+from users.serializers import UserSerializer  # , ContactSerializer
+from users.models import User, ConfirmEmailToken  # , Contact
 # from users.permissions import IsOwner
 from django_rest_passwordreset.serializers import EmailSerializer
 from django_rest_passwordreset.signals import pre_password_reset, post_password_reset
@@ -81,7 +81,7 @@ class RegisterAccount(APIView):
             'first_name',
             'last_name', 'email',
             'password',
-            }.issubset(request.data):
+        }.issubset(request.data):
 
             # check password
             try:
@@ -252,7 +252,7 @@ class ContactViewSet(ModelViewSet):
 
     # serializer_class = ContactSerializer
     # queryset = Contact.objects.all()
-    permission_classes = [IsAuthenticated] # isOwner]
+    permission_classes = [IsAuthenticated]  # isOwner]
 
     def get_queryset(self):
         """
@@ -263,10 +263,7 @@ class ContactViewSet(ModelViewSet):
 
     def create(self, request, *args, **kwargs):
         contact_data = self.request.data
-        # change request data so that it's mutable, otherwise this will raise
-        # a "This QueryDict instance is immutable." error
         contact_data._mutable = True
-        # set the requesting user ID for the User ForeignKey
         contact_data['user'] = self.request.user.id
 
         serializer = ContactSerializer(data=contact_data)

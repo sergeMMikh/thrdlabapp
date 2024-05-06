@@ -108,7 +108,7 @@ class RegisterAccount(APIView):
                     # verification of email
                     token, _ = Token.objects.get_or_create(user=user)
                     send_email_4_verification.delay(
-                    # send_email_4_verification(
+                        # send_email_4_verification(
                         current_site=get_current_site(request).domain,
                         user_email=user.email,
                         token=str(token),
