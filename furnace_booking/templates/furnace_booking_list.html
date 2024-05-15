@@ -1,17 +1,18 @@
-<!DOCTYPE html>
-<html lang="en">
+{% extends 'main/layout_furnaces.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+
 <head>
     <meta charset="UTF-8">
     <title>{{furnace.furnace_name}}</title>
 </head>
 <body>
 
-<div class="container">
-    <a style="margin-left: 500px;"></a>
-    <a class="button button-primary" ; href="{% url 'home' %}">
-        <button>To main
-    </a>
-</div>
+<div class="features">
+
+
 <h2>Booking list for {{furnace_name}}</h2>
 {% if not furnace.serviceable %}
 <h2>
@@ -26,6 +27,13 @@
     <br>
     <b>Today: {{date_today}}</b>
     <br>
+
+<style>
+    table {
+        margin-left: auto;
+        margin-right: auto;
+    }
+</style>
 <table>
     <colgroup style="background-color: #ddd;">
         <col>
@@ -60,10 +68,8 @@
     </tbody>
 </table>
 <br>
-<a style="margin-left: 500px;"></a>
-<a href="{% url 'home' %}">
-    <button>To main
-</a>
 
+</div>
 </body>
 </html>
+{% endblock %}
