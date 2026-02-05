@@ -1,0 +1,68 @@
+{% extends 'main/layout_furnaces.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+
+<head>
+    <meta charset="UTF-8">
+    <title>{{equipment.name}}</title>
+</head>
+<body>
+
+<div class="features">
+
+
+<h2>Booking list for {{equipment.name}}</h2>
+<p>Please, use the following form to make or change
+    <a href="{% url 'admin:index' %}">booking.</a>
+    <br>
+    <br>
+    <b>Today: {{date_today}}</b>
+    <br>
+
+<style>
+    table {
+        margin-left: auto;
+        margin-right: auto;
+    }
+</style>
+<table>
+    <colgroup style="background-color: #ddd;">
+        <col>
+        <col style="background-color: #ccc;">
+        <col>
+        <col style="background-color: #ccc;">
+    </colgroup>
+    <tbody>
+    <tr>
+        <th>Equipment</th>
+        <th>Booking Date</th>
+        <th>Name</th>
+        <th>Comments</th>
+    </tr>
+    {% for book in booking_list %}
+    {% if book.date == date_today %}
+    <tr>
+        <td>&nbsp;&nbsp;<b>{{ equipment.name }}</b>&nbsp;&nbsp;</td>
+        <td>&nbsp;&nbsp;<b>{{ book.date }}&nbsp;</b>&nbsp;</td>
+        <td>&nbsp;&nbsp;<b>{{ book.user}}&nbsp;</b>&nbsp;</td>
+        <td>&nbsp;&nbsp;<b><i>{{ book.comment}}</b></i>&nbsp;&nbsp;</td>
+    </tr>
+    {% else %}
+    <tr>
+        <td>&nbsp;&nbsp;{{ equipment.name }}&nbsp;&nbsp;</td>
+        <td>&nbsp;&nbsp;{{ book.date }}&nbsp;&nbsp;</td>
+        <td>&nbsp;&nbsp;{{ book.user}}&nbsp;&nbsp;</td>
+        <td>&nbsp;&nbsp;<i>{{ book.comment}}</i>&nbsp;&nbsp;</td>
+    </tr>
+    {% endif %}
+    {% endfor %}
+    </tbody>
+</table>
+<br>
+
+</div>
+</body>
+</html>
+{% endblock %}
