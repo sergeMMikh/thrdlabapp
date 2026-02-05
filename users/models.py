@@ -105,6 +105,15 @@ class User(AbstractUser):
         ordering = ('email',)
 
 
+class Person(models.Model):
+    name = models.CharField(max_length=150)
+    email = models.EmailField(blank=True, null=True)
+    telefone = models.CharField(max_length=50, blank=True, null=True)
+
+    def __str__(self):
+        return self.name
+
+
 class ConfirmEmailToken(models.Model):
     class Meta:
         verbose_name = 'Токен подтверждения Email'

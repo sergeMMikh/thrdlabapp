@@ -6,18 +6,18 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>{{furnace.furnace_name}}</title>
+    <title>{{furnace.name}}</title>
 </head>
 <body>
 
 <div class="features">
 
 
-<h2>Booking list for {{furnace_name}}</h2>
+<h2>Booking list for {{furnace.name}}</h2>
 {% if not furnace.serviceable %}
 <h2>
     <span style="color: red;">
-        The {{furnace.furnace_name}} is Out of service now!
+        The {{furnace.name}} is Out of service now!
     </span>
 </h2>
 {% endif %}
@@ -51,14 +51,14 @@
     {% for book in booking_list %}
     {% if book.date == date_today %}
     <tr>
-        <td>&nbsp;&nbsp;<b>{{ furnace.furnace_name }}</b>&nbsp;&nbsp;</td>
+        <td>&nbsp;&nbsp;<b>{{ furnace.name }}</b>&nbsp;&nbsp;</td>
         <td>&nbsp;&nbsp;<b>{{ book.date }}&nbsp;</b>&nbsp;</td>
         <td>&nbsp;&nbsp;<b>{{ book.user}}&nbsp;</b>&nbsp;</td>
         <td>&nbsp;&nbsp;<b><i>{{ book.comment}}</b></i>&nbsp;&nbsp;</td>
     </tr>
     {% else %}
     <tr>
-        <td>&nbsp;&nbsp;{{ furnace.furnace_name }}&nbsp;&nbsp;</td>
+        <td>&nbsp;&nbsp;{{ furnace.name }}&nbsp;&nbsp;</td>
         <td>&nbsp;&nbsp;{{ book.date }}&nbsp;&nbsp;</td>
         <td>&nbsp;&nbsp;{{ book.user}}&nbsp;&nbsp;</td>
         <td>&nbsp;&nbsp;<i>{{ book.comment}}</i>&nbsp;&nbsp;</td>

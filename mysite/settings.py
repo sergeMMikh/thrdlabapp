@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 
 import os
 from pathlib import Path
+from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -20,7 +21,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get(
+SECRET_KEY = config(
     "SECRET_KEY",
     default='django-insecure-rc^*w^w&6g9_(uvx#6s*bnt!w)l0rdi%!l7mv#y%uc&x%wo5pk')
 
@@ -99,11 +100,11 @@ WSGI_APPLICATION = 'mysite.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': os.environ.get("PGDATABASE", default="electrochemistry_lab"),
-        'USER': os.environ.get("PGUSER", default="postgres"),
-        'PASSWORD': os.environ.get("PGPASSWORD", default="vrag"),
-        'HOST': os.environ.get("PGHOST", default="localhost"),
-        'PORT': os.environ.get("PGPORT", default="5432"),
+        'NAME': config("PGDATABASE", default="electrochemistry_lab"),
+        'USER': config("PGUSER", default="postgres"),
+        'PASSWORD': config("PGPASSWORD", default="vrag"),
+        'HOST': config("PGHOST", default="localhost"),
+        'PORT': config("PGPORT", default="5432"),
     }
 }
 
@@ -189,8 +190,8 @@ REST_FRAMEWORK = {
 # https://docs.djangoproject.com/en/4.1/ref/settings/#std-setting-SERVER_EMAIL
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = os.getenv('EM_HOST')
-EMAIL_HOST_USER = os.getenv('EM_HOST_USER')
-EMAIL_HOST_PASSWORD = os.getenv('EM_HOST_PASSWORD')
-EMAIL_PORT = os.getenv('EM_PORT')
-EMAIL_USE_TLS = os.getenv('EM_USE_TLS')
+EMAIL_HOST = config('EM_HOST', default=None)
+EMAIL_HOST_USER = config('EM_HOST_USER', default=None)
+EMAIL_HOST_PASSWORD = config('EM_HOST_PASSWORD', default=None)
+EMAIL_PORT = config('EM_PORT', default=None)
+EMAIL_USE_TLS = config('EM_USE_TLS', default=None)
