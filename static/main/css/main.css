@@ -55,6 +55,13 @@ aside ul li {
     transition: transform .5s ease;
 }
 
+aside ul li.nav-divider{
+    margin: 14px 0;
+    height: 6px;
+    background: rgba(255, 255, 255, 0.35);
+    transform: none;
+}
+
 aside ul a {
     color: #fff;
     text-decoration: none;
