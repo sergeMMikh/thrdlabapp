@@ -1,0 +1,20 @@
+{% extends 'main/layout_furnaces.html' %}
+{% block title %}Equipment booking{% endblock %}
+
+{% block content %}
+    <div class="features">
+        <h1>Equipment booking</h1>
+
+        {% if form.non_field_errors %}
+            <div>
+                {{ form.non_field_errors }}
+            </div>
+        {% endif %}
+
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <button type="submit">Book</button>
+        </form>
+    </div>
+{% endblock %}

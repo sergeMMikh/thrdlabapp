@@ -106,12 +106,13 @@ class User(AbstractUser):
 
 
 class Person(models.Model):
-    name = models.CharField(max_length=150)
-    email = models.EmailField(blank=True, null=True)
-    telefone = models.CharField(max_length=50, blank=True, null=True)
+    first_name = models.CharField(max_length=250, null=False, default='')
+    surname = models.CharField(max_length=250, null=True)
+    telephone_number = models.CharField(max_length=20, null=True)
+    email = models.CharField(max_length=100, null=True)
 
     def __str__(self):
-        return self.name
+        return f"{self.first_name} {self.surname}"
 
 
 class ConfirmEmailToken(models.Model):

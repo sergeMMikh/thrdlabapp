@@ -10,4 +10,4 @@ class UserAdmin(admin.ModelAdmin):
 
 @admin.register(Person)
 class PersonAdmin(admin.ModelAdmin):
-    list_display = ['name', 'email', 'telefone']
+    list_display = ['first_name', 'surname', 'email', 'telephone_number']

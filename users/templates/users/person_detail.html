@@ -1,0 +1,22 @@
+{% extends 'main/layout_furnaces.html' %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+    <div class="features">
+        <h1>{{ person.first_name }} {{ person.surname }}</h1>
+
+        <table>
+            <tbody>
+            <tr>
+                <th>Email</th>
+                <td>&nbsp;&nbsp;{{ person.email }}&nbsp;&nbsp;</td>
+            </tr>
+            <tr>
+                <th>Phone</th>
+                <td>&nbsp;&nbsp;{{ person.telephone_number }}&nbsp;&nbsp;</td>
+            </tr>
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

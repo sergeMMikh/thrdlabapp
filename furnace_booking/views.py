@@ -1,6 +1,9 @@
-from django.shortcuts import render
+from django.db import IntegrityError, transaction
+from django.shortcuts import render, redirect
+from django.urls import reverse
 from datetime import date
 from .models import Furnace, BookingOfFurnace, Equipment, BookingOfEquipment
+from .forms import FurnaceBookingForm, EquipmentBookingForm
 
 
 def home_view(request):
@@ -32,6 +35,66 @@ def equipment_list_view(request):
     context = {
         'title': 'Equipment',
         'equipments': equipments,
+    }
+
+    return render(request, template, context)
+
+
+def equipment_booking_view(request):
+    template = 'equipment_booking_form.html'
+
+    if request.method == 'POST':
+        form = EquipmentBookingForm(request.POST)
+        if form.is_valid():
+            data = form.cleaned_data
+            try:
+                with transaction.atomic():
+                    BookingOfEquipment.objects.create(
+                        date=data['date'],
+                        equipment=data['equipment'],
+                        person=data['person'],
+                        comments=data.get('comments') or None,
+                    )
+            except IntegrityError:
+                form.add_error(None, 'This equipment is already booked for that date.')
+            else:
+                return redirect(f"{reverse('equipment')}?equipment={data['equipment'].name}")
+    else:
+        form = EquipmentBookingForm()
+
+    context = {
+        'title': 'Equipment booking',
+        'form': form,
+    }
+
+    return render(request, template, context)
+
+
+def furnace_booking_view(request):
+    template = 'furnace_booking_form.html'
+
+    if request.method == 'POST':
+        form = FurnaceBookingForm(request.POST)
+        if form.is_valid():
+            data = form.cleaned_data
+            try:
+                with transaction.atomic():
+                    BookingOfFurnace.objects.create(
+                        date=data['date'],
+                        furnace=data['furnace'],
+                        person=data['person'],
+                        comments=data.get('comments') or None,
+                    )
+            except IntegrityError:
+                form.add_error(None, 'This furnace is already booked for that date.')
+            else:
+                return redirect(f"{reverse('furnace')}?furnace={data['furnace'].name}")
+    else:
+        form = FurnaceBookingForm()
+
+    context = {
+        'title': 'Furnace booking',
+        'form': form,
     }
 
     return render(request, template, context)

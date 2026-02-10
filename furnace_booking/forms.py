@@ -1,0 +1,49 @@
+from django import forms
+from django.utils import timezone
+
+from .models import Furnace, Equipment
+from users.models import Person
+
+
+class FurnaceBookingForm(forms.Form):
+    person = forms.ModelChoiceField(
+        queryset=Person.objects.all().order_by('first_name', 'surname'),
+        label='Person',
+    )
+    furnace = forms.ModelChoiceField(
+        queryset=Furnace.objects.all().order_by('location', 'name'),
+        label='Furnace',
+    )
+    date = forms.DateField(
+        initial=timezone.localdate,
+        widget=forms.DateInput(attrs={'type': 'date'}),
+        label='Date',
+    )
+    comments = forms.CharField(
+        required=False,
+        max_length=500,
+        widget=forms.Textarea(attrs={'rows': 3}),
+        label='Comments',
+    )
+
+
+class EquipmentBookingForm(forms.Form):
+    person = forms.ModelChoiceField(
+        queryset=Person.objects.all().order_by('first_name', 'surname'),
+        label='Person',
+    )
+    equipment = forms.ModelChoiceField(
+        queryset=Equipment.objects.all().order_by('location', 'name'),
+        label='Equipment',
+    )
+    date = forms.DateField(
+        initial=timezone.localdate,
+        widget=forms.DateInput(attrs={'type': 'date'}),
+        label='Date',
+    )
+    comments = forms.CharField(
+        required=False,
+        max_length=500,
+        widget=forms.Textarea(attrs={'rows': 3}),
+        label='Comments',
+    )
