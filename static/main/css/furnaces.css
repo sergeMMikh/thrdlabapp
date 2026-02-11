@@ -8,6 +8,16 @@ table {
     border-spacing: 10px 0;
 }
 
+table th,
+table td {
+    padding: 4.8px 10px;
+}
+
+table tbody tr + tr td,
+table tbody tr + tr th {
+    border-top: 1px solid rgba(0, 0, 0, 0.2);
+}
+
 /* Side bar */
 aside {
     float: left;
@@ -112,6 +122,6 @@ main .features table{
 
 .people-table th,
 .people-table td{
-    padding: 4px 12px;
+    padding: 3.2px 12px;
     text-align: center;
 }
