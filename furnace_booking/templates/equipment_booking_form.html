@@ -14,7 +14,8 @@
         <form method="post">
             {% csrf_token %}
             {{ form.as_p }}
-            <button type="submit">Book</button>
+            <button type="submit" name="action" value="book">Book</button>
+            <button type="submit" name="action" value="book_and_next">Book and Book next</button>
         </form>
     </div>
 {% endblock %}

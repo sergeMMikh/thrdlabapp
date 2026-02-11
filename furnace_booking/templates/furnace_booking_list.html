@@ -21,6 +21,10 @@
     </span>
 </h2>
 {% endif %}
+<a href="{% url 'furnace_booking' %}?furnace={{ furnace.id }}">
+    <button type="button">Book furnace</button>
+</a>
+<br>
 <b>Today: {{date_today}}</b>
 <br>
 
@@ -43,6 +47,7 @@
         <th>Booking Date</th>
         <th>Name</th>
         <th>Comments</th>
+        <th>Action</th>
     </tr>
     {% for book in booking_list %}
     {% if book.date == date_today %}
@@ -51,6 +56,14 @@
         <td>&nbsp;&nbsp;<b>{{ book.date }}&nbsp;</b>&nbsp;</td>
         <td>&nbsp;&nbsp;<b>{{ book.user}}&nbsp;</b>&nbsp;</td>
         <td>&nbsp;&nbsp;<b><i>{{ book.comment}}</b></i>&nbsp;&nbsp;</td>
+        <td>
+            <form method="post" action="{% url 'delete_furnace_booking' %}">
+                {% csrf_token %}
+                <input type="hidden" name="booking_id" value="{{ book.id }}">
+                <input type="hidden" name="furnace_name" value="{{ furnace.name }}">
+                <button type="submit">Delete</button>
+            </form>
+        </td>
     </tr>
     {% else %}
     <tr>
@@ -58,6 +71,14 @@
         <td>&nbsp;&nbsp;{{ book.date }}&nbsp;&nbsp;</td>
         <td>&nbsp;&nbsp;{{ book.user}}&nbsp;&nbsp;</td>
         <td>&nbsp;&nbsp;<i>{{ book.comment}}</i>&nbsp;&nbsp;</td>
+        <td>
+            <form method="post" action="{% url 'delete_furnace_booking' %}">
+                {% csrf_token %}
+                <input type="hidden" name="booking_id" value="{{ book.id }}">
+                <input type="hidden" name="furnace_name" value="{{ furnace.name }}">
+                <button type="submit">Delete</button>
+            </form>
+        </td>
     </tr>
     {% endif %}
     {% endfor %}

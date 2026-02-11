@@ -1,7 +1,8 @@
 from django.db import IntegrityError, transaction
 from django.shortcuts import render, redirect
 from django.urls import reverse
-from datetime import date
+from datetime import date, timedelta
+from urllib.parse import urlencode
 from .models import Furnace, BookingOfFurnace, Equipment, BookingOfEquipment
 from .forms import FurnaceBookingForm, EquipmentBookingForm
 
@@ -47,6 +48,7 @@ def equipment_booking_view(request):
         form = EquipmentBookingForm(request.POST)
         if form.is_valid():
             data = form.cleaned_data
+            action = request.POST.get('action', 'book')
             try:
                 with transaction.atomic():
                     BookingOfEquipment.objects.create(
@@ -58,9 +60,28 @@ def equipment_booking_view(request):
             except IntegrityError:
                 form.add_error(None, 'This equipment is already booked for that date.')
             else:
+                if action == 'book_and_next':
+                    query = urlencode({
+                        'person': data['person'].pk,
+                        'equipment': data['equipment'].pk,
+                        'date': (data['date'] + timedelta(days=1)).isoformat(),
+                        'comments': data.get('comments') or '',
+                    })
+                    return redirect(f"{reverse('equipment_booking')}?{query}")
                 return redirect(f"{reverse('equipment')}?equipment={data['equipment'].name}")
     else:
-        form = EquipmentBookingForm()
+        initial = {}
+        person_id = request.GET.get('person')
+        equipment_id = request.GET.get('equipment')
+        if person_id:
+            initial['person'] = person_id
+        if equipment_id:
+            initial['equipment'] = equipment_id
+        if request.GET.get('date'):
+            initial['date'] = request.GET['date']
+        if 'comments' in request.GET:
+            initial['comments'] = request.GET.get('comments', '')
+        form = EquipmentBookingForm(initial=initial or None)
 
     context = {
         'title': 'Equipment booking',
@@ -77,6 +98,7 @@ def furnace_booking_view(request):
         form = FurnaceBookingForm(request.POST)
         if form.is_valid():
             data = form.cleaned_data
+            action = request.POST.get('action', 'book')
             try:
                 with transaction.atomic():
                     BookingOfFurnace.objects.create(
@@ -88,9 +110,28 @@ def furnace_booking_view(request):
             except IntegrityError:
                 form.add_error(None, 'This furnace is already booked for that date.')
             else:
+                if action == 'book_and_next':
+                    query = urlencode({
+                        'person': data['person'].pk,
+                        'furnace': data['furnace'].pk,
+                        'date': (data['date'] + timedelta(days=1)).isoformat(),
+                        'comments': data.get('comments') or '',
+                    })
+                    return redirect(f"{reverse('furnace_booking')}?{query}")
                 return redirect(f"{reverse('furnace')}?furnace={data['furnace'].name}")
     else:
-        form = FurnaceBookingForm()
+        initial = {}
+        person_id = request.GET.get('person')
+        furnace_id = request.GET.get('furnace')
+        if person_id:
+            initial['person'] = person_id
+        if furnace_id:
+            initial['furnace'] = furnace_id
+        if request.GET.get('date'):
+            initial['date'] = request.GET['date']
+        if 'comments' in request.GET:
+            initial['comments'] = request.GET.get('comments', '')
+        form = FurnaceBookingForm(initial=initial or None)
 
     context = {
         'title': 'Furnace booking',
@@ -119,7 +160,8 @@ def furnace_book_list(request):
         if comments == 'None':
             comments = ' '
 
-        tmp_dict = {'date': book.date,
+        tmp_dict = {'id': book.id,
+                    'date': book.date,
                     'user': book.person,
                     'comment': comments}
 
@@ -151,7 +193,8 @@ def equipment_book_list(request):
         if comments == 'None':
             comments = ' '
 
-        tmp_dict = {'date': book.date,
+        tmp_dict = {'id': book.id,
+                    'date': book.date,
                     'user': book.person,
                     'comment': comments}
 
@@ -162,3 +205,25 @@ def equipment_book_list(request):
                'booking_list': book_list}
 
     return render(request, template, context)
+
+
+def delete_furnace_booking_view(request):
+    if request.method == 'POST':
+        booking_id = request.POST.get('booking_id')
+        furnace_name = request.POST.get('furnace_name')
+        if booking_id:
+            BookingOfFurnace.objects.filter(id=booking_id).delete()
+        if furnace_name:
+            return redirect(f"{reverse('furnace')}?furnace={furnace_name}")
+    return redirect(reverse('furnaces'))
+
+
+def delete_equipment_booking_view(request):
+    if request.method == 'POST':
+        booking_id = request.POST.get('booking_id')
+        equipment_name = request.POST.get('equipment_name')
+        if booking_id:
+            BookingOfEquipment.objects.filter(id=booking_id).delete()
+        if equipment_name:
+            return redirect(f"{reverse('equipment')}?equipment={equipment_name}")
+    return redirect(reverse('equipments'))
