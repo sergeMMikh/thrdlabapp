@@ -9,8 +9,6 @@ from rest_framework.generics import GenericAPIView
 from rest_framework.authtoken.models import Token
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.views import APIView
-from rest_framework.viewsets import ModelViewSet
-from users.tasks import send_email_4_verification
 from users.serializers import UserSerializer
 from users.models import User, ConfirmEmailToken  # , Contact
 # from users.permissions import IsOwner
@@ -28,12 +26,6 @@ from django.core.exceptions import ValidationError
 from django.contrib.auth.password_validation import get_password_validators
 from django.conf import settings
 from users.tasks import send_email_4_reset_passw
-from django.contrib.sites.shortcuts import get_current_site
-
-try:
-    from users.serializers import ContactSerializer
-except ImportError:
-    ContactSerializer = None
 
 
 class LoginAccount(APIView):
@@ -110,13 +102,7 @@ class RegisterAccount(APIView):
                     user.set_password(request.data['password'])
                     user.save()
                     # verification of email
-                    token, _ = Token.objects.get_or_create(user=user)
-                    # Send e-mail to confirm
-                    # send_email_4_verification.delay(
-                    #     current_site=get_current_site(request).domain,
-                    #     user_email=user.email,
-                    #     token=str(token),
-                    # )
+                    Token.objects.get_or_create(user=user)
 
                     return JsonResponse(
                         {'Status': True,
@@ -250,54 +236,6 @@ class EditUser(APIView):
     #                     status=status.HTTP_400_BAD_REQUEST)
 
 
-class ContactViewSet(ModelViewSet):
-    """
-    Для работы с контактами
-    """
-
-    # serializer_class = ContactSerializer
-    # queryset = Contact.objects.all()
-    permission_classes = [IsAuthenticated]  # isOwner]
-
-    def get_queryset(self):
-        """
-        This view should return CRUD of all the contacts
-        for the currently authenticated user.
-        """
-        return super().get_queryset().filter(user_id=self.request.user)
-
-    def create(self, request, *args, **kwargs):
-        if ContactSerializer is None:
-            return Response(
-                {'Errors': 'Contact serializer is not configured.'},
-                status=status.HTTP_501_NOT_IMPLEMENTED,
-            )
-
-        contact_data = self.request.data
-        contact_data._mutable = True
-        contact_data['user'] = self.request.user.id
-
-        serializer = ContactSerializer(data=contact_data)
-
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data,
-                            status=status.HTTP_201_CREATED)
-        return Response(serializer.errors,
-                        status=status.HTTP_400_BAD_REQUEST)
-
-    def delete(self, request, *args, **kwargs):
-        items_list = request.data.get('items').split(',')
-        deleted_items = 0
-
-        for item in items_list:
-            super().get_queryset().filter(pk=item).delete()
-            deleted_items += 1
-
-        return Response({'message': f'Deleted {deleted_items} otems.'},
-                        status=status.HTTP_200_OK)
-
-
 class ResetPasswordRequestToken(GenericAPIView):
     """
     An Api View which provides a method to request a
@@ -427,3 +365,4 @@ class ResetPasswordConfirm(GenericAPIView):
         return Response({'status': 'OK',
                          'Message': 'Password was changed.'},
                         status=status.HTTP_200_OK)
+

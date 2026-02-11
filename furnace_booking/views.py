@@ -21,6 +21,7 @@ def home_view(request):
     context = {
         'title': 'Furnaces',
         'furnaces': furnaces,
+        'side_bar_image': 'main/img/side_bar_img.png',
     }
 
     print(f"context: {context}")
@@ -138,6 +139,7 @@ def furnace_booking_view(request):
     context = {
         'title': 'Furnace booking',
         'form': form,
+        'side_bar_image': 'main/img/side_bar_img.png',
     }
 
     return render(request, template, context)
@@ -171,7 +173,8 @@ def furnace_book_list(request):
 
     context = {'furnace': furnace[0],
                'date_today': date.today(),
-               'booking_list': book_list}
+               'booking_list': book_list,
+               'side_bar_image': 'main/img/side_bar_img.png'}
 
     return render(request, template, context)
 

@@ -27,6 +27,7 @@ def news_home(request):
     content = {
         'title': 'News',
         'news': news,
+        'side_bar_image': 'main/img/side_bar_home.png',
     }
     return render(request, 'news/news_home.html', content)
 

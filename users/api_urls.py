@@ -1,17 +1,17 @@
 from django.urls import path
 from rest_framework.authtoken.views import obtain_auth_token
-from rest_framework.routers import DefaultRouter
 
-# from orders.views.bascket_views import BasketView
-from users.views.user_views import LoginAccount, RegisterAccount, \
-     ConfirmAccount, ContactViewSet, EditUser, UserEmailVerify, \
-     ResetPasswordRequestToken, ResetPasswordConfirm
-# from orders.views.partner_views import PartnerUpdate, PartnerState
-# from orders.views.order_view import OrderView
+from users.views.user_views import (
+    ConfirmAccount,
+    EditUser,
+    LoginAccount,
+    RegisterAccount,
+    ResetPasswordConfirm,
+    ResetPasswordRequestToken,
+    UserEmailVerify,
+)
 
 app_name = 'orders'
-router = DefaultRouter()
-# router.register(r'user/contact', ContactViewSet, basename='user-contact')
 
 urlpatterns = [
                   path('user/login', LoginAccount.as_view(), name='user-login'),
@@ -27,4 +27,5 @@ urlpatterns = [
                        name='password-reset-confirm'),
                   path('token/', obtain_auth_token),
 
-              ] + router.urls
+               ]
+
