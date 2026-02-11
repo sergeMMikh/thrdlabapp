@@ -3,8 +3,6 @@ from rest_framework.authtoken.views import obtain_auth_token
 from rest_framework.routers import DefaultRouter
 
 # from orders.views.bascket_views import BasketView
-# from orders.views.product_views import ProductsList, \
-#     ProductsView, SingleProductView, ShopView, ProductInfoViewSet
 from users.views.user_views import LoginAccount, RegisterAccount, \
      ConfirmAccount, ContactViewSet, EditUser, UserEmailVerify, \
      ResetPasswordRequestToken, ResetPasswordConfirm
