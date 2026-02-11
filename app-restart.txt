@@ -1,6 +1,8 @@
 cd ~/thrdlabapp
 source .venv/bin/activate
 
+git pull
+
 pip install -r requirements.txt
 python manage.py migrate --noinput
 python manage.py collectstatic --noinput
