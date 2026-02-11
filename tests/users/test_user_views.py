@@ -156,7 +156,11 @@ def test_edit_user_get_and_post_for_authenticated_user(client, strong_password):
 
 
 @patch('users.views.user_views.send_email_4_reset_passw.delay')
-def test_password_reset_request_returns_ok_and_calls_task(mock_delay, client, strong_password):
+def test_password_reset_request_returns_ok_and_calls_task(
+    mock_delay,
+    client,
+    strong_password,
+):
     user = User.objects.create_user(
         email='reset-request@example.com',
         password=strong_password,
@@ -175,7 +179,10 @@ def test_password_reset_request_returns_ok_and_calls_task(mock_delay, client, st
     assert mock_delay.called is True
 
 
-def test_password_reset_confirm_changes_password_and_deletes_reset_tokens(client, strong_password):
+def test_password_reset_confirm_changes_password_and_deletes_reset_tokens(
+    client,
+    strong_password,
+):
     user = User.objects.create_user(
         email='reset-confirm@example.com',
         password=strong_password,

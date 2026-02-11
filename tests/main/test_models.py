@@ -233,7 +233,12 @@ def test_booking_of_furnace_update_comments(person, furnace, furnace_booking_dat
     assert booking.comments == 'Updated comment'
 
 
-def test_delete_person_cascades_to_bookings(furnace, equipment, furnace_booking_date, equipment_booking_date):
+def test_delete_person_cascades_to_bookings(
+    furnace,
+    equipment,
+    furnace_booking_date,
+    equipment_booking_date,
+):
     person = Person.objects.create(first_name='Delete', surname='Me')
     BookingOfFurnace.objects.create(
         date=furnace_booking_date,
@@ -252,7 +257,11 @@ def test_delete_person_cascades_to_bookings(furnace, equipment, furnace_booking_
     assert BookingOfEquipment.objects.count() == 0
 
 
-def test_delete_furnace_cascades_to_furnace_bookings(person, furnace, furnace_booking_date):
+def test_delete_furnace_cascades_to_furnace_bookings(
+    person,
+    furnace,
+    furnace_booking_date,
+):
     BookingOfFurnace.objects.create(
         date=furnace_booking_date,
         furnace=furnace,
