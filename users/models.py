@@ -14,6 +14,7 @@ from django.contrib.auth.models import AbstractUser, BaseUserManager
 from django.contrib.auth.validators import UnicodeUsernameValidator
 from django.utils.translation import gettext_lazy as _
 from django.db import models
+from django_rest_passwordreset.models import get_token_generator
 
 
 class UserManager(BaseUserManager):

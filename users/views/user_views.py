@@ -11,7 +11,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 from users.tasks import send_email_4_verification
-from users.serializers import UserSerializer  # , ContactSerializer
+from users.serializers import UserSerializer
 from users.models import User, ConfirmEmailToken  # , Contact
 # from users.permissions import IsOwner
 from django_rest_passwordreset.serializers import EmailSerializer
@@ -29,6 +29,11 @@ from django.contrib.auth.password_validation import get_password_validators
 from django.conf import settings
 from users.tasks import send_email_4_reset_passw
 from django.contrib.sites.shortcuts import get_current_site
+
+try:
+    from users.serializers import ContactSerializer
+except ImportError:
+    ContactSerializer = None
 
 
 class LoginAccount(APIView):
@@ -262,6 +267,12 @@ class ContactViewSet(ModelViewSet):
         return super().get_queryset().filter(user_id=self.request.user)
 
     def create(self, request, *args, **kwargs):
+        if ContactSerializer is None:
+            return Response(
+                {'Errors': 'Contact serializer is not configured.'},
+                status=status.HTTP_501_NOT_IMPLEMENTED,
+            )
+
         contact_data = self.request.data
         contact_data._mutable = True
         contact_data['user'] = self.request.user.id

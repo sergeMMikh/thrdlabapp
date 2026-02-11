@@ -169,8 +169,9 @@ class BasketView(APIView):
                     print(order_item)
                     print(f"order_item['id']: {order_item['id']}")
                     print(f"order_item['quantity']: {order_item['quantity']}")
-                    if type(order_item['id']) == int \
-                            and type(order_item['quantity']) == int:
+                    if isinstance(order_item['id'], int) and isinstance(
+                        order_item['quantity'], int
+                    ):
 
                         try:
                             obj, created = OrderItem.objects.update_or_create(
