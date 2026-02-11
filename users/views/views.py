@@ -18,6 +18,7 @@ def people_list_view(request):
     context = {
         'title': 'People',
         'people_rows': people_rows,
+        'side_bar_image': 'main/img/side_bar_person.png',
     }
 
     return render(request, template, context)
@@ -30,6 +31,7 @@ def person_detail_view(request, person_id):
     context = {
         'title': 'Person',
         'person': person,
+        'side_bar_image': 'main/img/side_bar_person.png',
     }
 
     return render(request, template, context)
