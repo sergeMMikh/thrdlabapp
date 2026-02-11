@@ -70,7 +70,7 @@ def equipment_booking_view(request):
                     })
                     return redirect(f"{reverse('equipment_booking')}?{query}")
                 return redirect(
-                    f"{reverse('equipment')}?equipment={data['equipment'].name}"
+                    f"{reverse('equipment')}?equipment={data['equipment'].name}",
                 )
     else:
         initial = {}

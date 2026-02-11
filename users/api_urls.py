@@ -28,4 +28,3 @@ urlpatterns = [
                   path('token/', obtain_auth_token),
 
                ]
-

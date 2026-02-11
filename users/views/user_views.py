@@ -365,4 +365,3 @@ class ResetPasswordConfirm(GenericAPIView):
         return Response({'status': 'OK',
                          'Message': 'Password was changed.'},
                         status=status.HTTP_200_OK)
-
