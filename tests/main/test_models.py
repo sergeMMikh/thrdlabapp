@@ -186,3 +186,103 @@ def test_articles_str_get_absolute_url_and_defaults():
     assert article.anons == 'Anons'
     assert str(article) == 'News'
     assert article.get_absolute_url() == f'/news/{article.id}'
+
+
+def test_person_update_fields():
+    person = Person.objects.create(first_name='Old', surname='Name')
+
+    person.first_name = 'New'
+    person.surname = 'Surname'
+    person.save()
+    person.refresh_from_db()
+
+    assert person.first_name == 'New'
+    assert person.surname == 'Surname'
+
+
+def test_furnace_update_fields():
+    furnace = Furnace.objects.create(
+        name='Furnace-1',
+        location='Lab A',
+        serviceable=True,
+        max_temperature=1200,
+        min_temperature=200,
+        is_clean=True,
+    )
+
+    furnace.location = 'Lab C'
+    furnace.serviceable = False
+    furnace.save()
+    furnace.refresh_from_db()
+
+    assert furnace.location == 'Lab C'
+    assert furnace.serviceable is False
+
+
+def test_booking_of_furnace_update_comments(person, furnace, furnace_booking_date):
+    booking = BookingOfFurnace.objects.create(
+        date=furnace_booking_date,
+        furnace=furnace,
+        person=person,
+    )
+
+    booking.comments = 'Updated comment'
+    booking.save()
+    booking.refresh_from_db()
+
+    assert booking.comments == 'Updated comment'
+
+
+def test_delete_person_cascades_to_bookings(furnace, equipment, furnace_booking_date, equipment_booking_date):
+    person = Person.objects.create(first_name='Delete', surname='Me')
+    BookingOfFurnace.objects.create(
+        date=furnace_booking_date,
+        furnace=furnace,
+        person=person,
+    )
+    BookingOfEquipment.objects.create(
+        date=equipment_booking_date,
+        equipment=equipment,
+        person=person,
+    )
+
+    person.delete()
+
+    assert BookingOfFurnace.objects.count() == 0
+    assert BookingOfEquipment.objects.count() == 0
+
+
+def test_delete_furnace_cascades_to_furnace_bookings(person, furnace, furnace_booking_date):
+    BookingOfFurnace.objects.create(
+        date=furnace_booking_date,
+        furnace=furnace,
+        person=person,
+    )
+
+    furnace.delete()
+
+    assert BookingOfFurnace.objects.count() == 0
+
+
+def test_delete_user_cascades_to_confirm_email_tokens():
+    user = User.objects.create_user(
+        email='delete-token-owner@example.com',
+        password='strong-pass-123',
+    )
+    ConfirmEmailToken.objects.create(user=user)
+
+    user.delete()
+
+    assert ConfirmEmailToken.objects.count() == 0
+
+
+def test_delete_article_removes_object():
+    article = Articles.objects.create(
+        date=dt.date(2026, 1, 20),
+        full_text='Will be deleted',
+    )
+
+    article_id = article.id
+    article.delete()
+
+    assert Articles.objects.filter(id=article_id).exists() is False
