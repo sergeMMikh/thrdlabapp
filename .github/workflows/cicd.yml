@@ -8,6 +8,20 @@ on:
 jobs:
   tests:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_DB: electrochemistry_lab
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: vrag
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d electrochemistry_lab"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
     steps:
 
       - name: Check updates
@@ -20,11 +34,17 @@ jobs:
 
       - name: setup libs
         run: |
-          pip install --upgrade pip |
+          pip install --upgrade pip
           pip install -r requirements.txt
 
       - name: Linting of code
         run: flake8
 
       - name: Testing
+        env:
+          PGDATABASE: electrochemistry_lab
+          PGUSER: postgres
+          PGPASSWORD: vrag
+          PGHOST: localhost
+          PGPORT: 5432
         run: pytest
