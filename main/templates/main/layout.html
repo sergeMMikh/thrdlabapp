@@ -5,8 +5,8 @@
     <link rel="icon" type="image/png" sizes="32x32" href="{% static 'main/img/favicon-32x32.png' %}">
     <meta charset="UTF-8">
     <title>{% block title %}{% endblock %}</title>
-    <link rel="stylesheet" href="{% static 'main/css/main.css' %}">
     {% include 'main/styles.html' %}
+    <link rel="stylesheet" href="{% static 'main/css/main.css' %}">
 <body>
     <aside{% if side_bar_image %} style="background-image: url('{% static side_bar_image %}');"{% endif %}>
         <img src="{% static 'main/img/4whatsapp.png' %}" alt="SMM">

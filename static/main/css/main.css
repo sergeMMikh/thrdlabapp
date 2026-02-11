@@ -105,3 +105,18 @@ form {
     width: 500px;
     margin-top: 50px;
 }
+
+.home-quick-link {
+    border: 2px solid #b76f00;
+    color: #8a5400;
+    font-size: 2.2rem !important;
+    font-weight: 900 !important;
+    background: #fffaf0;
+}
+
+.home-quick-link:hover,
+.home-quick-link:focus {
+    border-color: #8a5400;
+    color: #ffffff;
+    background: #b76f00;
+}

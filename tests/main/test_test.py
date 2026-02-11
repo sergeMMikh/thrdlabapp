@@ -5,7 +5,7 @@ def test_test():
     assert 2 == 2
 
 
-def test_main_page():
+def test_main_page(live_server):
     options = webdriver.ChromeOptions()
     options.add_argument('--headless=new')
     options.add_argument('--no-sandbox')
@@ -13,7 +13,7 @@ def test_main_page():
     options.add_argument('--window-size=1920,1080')
     browser = webdriver.Chrome(options=options)
     try:
-        browser.get('http://127.0.0.1:8000')
+        browser.get(live_server.url)
         assert 'Home' in browser.title
     finally:
         browser.quit()
