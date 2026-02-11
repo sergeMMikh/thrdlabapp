@@ -91,6 +91,13 @@ main .features p{
     margin: 20px auto;
 }
 
+main .features .home-intro{
+    max-width: 900px;
+    font-size: 1.9rem;
+    font-weight: 700;
+    line-height: 1.35;
+}
+
 /* for news*/
 .alert-warning {
     float: left;
