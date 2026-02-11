@@ -3,6 +3,11 @@ body {
     background: #fefefe;
 }
 
+table {
+    border-collapse: separate;
+    border-spacing: 10px 0;
+}
+
 /* Side bar */
 aside {
     float: left;
