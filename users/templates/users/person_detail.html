@@ -18,5 +18,58 @@
             </tr>
             </tbody>
         </table>
+
+        <br>
+        <b>Today: {{ date_today }}</b>
+        <br><br>
+
+        {% if bookings %}
+            <table>
+                <colgroup style="background-color: #ddd;">
+                    <col>
+                    <col style="background-color: #ccc;">
+                    <col>
+                    <col style="background-color: #ccc;">
+                </colgroup>
+                <tbody>
+                <tr>
+                    <th>Booking Date</th>
+                    <th>Type</th>
+                    <th>Name</th>
+                    <th>Comments</th>
+                    <th>Action</th>
+                </tr>
+                {% for booking in bookings %}
+                    <tr>
+                        <td>&nbsp;&nbsp;{{ booking.date }}&nbsp;&nbsp;</td>
+                        <td>&nbsp;&nbsp;{{ booking.kind }}&nbsp;&nbsp;</td>
+                        <td>&nbsp;&nbsp;{{ booking.name }}&nbsp;&nbsp;</td>
+                        <td>&nbsp;&nbsp;<i>{{ booking.comments }}</i>&nbsp;&nbsp;</td>
+                        <td>
+                            {% if booking.kind_key == 'furnace' %}
+                                <form method="post" action="{% url 'delete_furnace_booking' %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="booking_id" value="{{ booking.id }}">
+                                    <input type="hidden" name="furnace_name" value="{{ booking.name }}">
+                                    <input type="hidden" name="next" value="{% url 'person_detail' person.id %}">
+                                    <button type="submit">Delete</button>
+                                </form>
+                            {% else %}
+                                <form method="post" action="{% url 'delete_equipment_booking' %}">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="booking_id" value="{{ booking.id }}">
+                                    <input type="hidden" name="equipment_name" value="{{ booking.name }}">
+                                    <input type="hidden" name="next" value="{% url 'person_detail' person.id %}">
+                                    <button type="submit">Delete</button>
+                                </form>
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <p>No active bookings for today and future dates.</p>
+        {% endif %}
     </div>
 {% endblock %}
