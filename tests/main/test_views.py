@@ -4,9 +4,19 @@ import pytest
 from django.urls import reverse
 
 from news.models import Articles
+from users.models import Person
 
 
 pytestmark = pytest.mark.django_db
+
+
+@pytest.fixture
+def person():
+    return Person.objects.create(
+        first_name='Sergey',
+        surname='Mikhalev',
+        email='sergey@example.com',
+    )
 
 
 def test_main_pages_render_successfully(client):
@@ -52,14 +62,13 @@ def test_create_news_get_renders_form(client):
     assert 'form' in response.context
 
 
-def test_create_news_post_valid_creates_article_and_redirects(client):
+def test_create_news_post_valid_creates_article_and_redirects(client, person):
     response = client.post(
         reverse('create_news'),
         data={
             'title': 'New title',
-            'anons': 'Short anons',
             'full_text': 'Long text',
-            'date': '2026-01-20',
+            'author': person.id,
         },
     )
 
@@ -72,15 +81,14 @@ def test_create_news_post_invalid_returns_error(client):
     response = client.post(
         reverse('create_news'),
         data={
-            'title': 'Missing date',
-            'anons': 'Short anons',
+            'title': 'Missing author',
             'full_text': 'Long text',
         },
     )
 
     assert response.status_code == 200
     assert response.context['error'] == 'The form is not correct'
-    assert Articles.objects.filter(title='Missing date').exists() is False
+    assert Articles.objects.filter(title='Missing author').exists() is False
 
 
 def test_news_detail_view_renders_article(client):
@@ -97,7 +105,7 @@ def test_news_detail_view_renders_article(client):
     assert response.context['article'] == article
 
 
-def test_news_update_view_updates_article(client):
+def test_news_update_view_updates_article(client, person):
     article = Articles.objects.create(
         title='Old title',
         anons='Old anons',
@@ -109,9 +117,8 @@ def test_news_update_view_updates_article(client):
         reverse('news-update', args=[article.pk]),
         data={
             'title': 'Updated title',
-            'anons': 'Updated anons',
             'full_text': 'Updated text',
-            'date': '2026-01-23',
+            'author': person.id,
         },
     )
     article.refresh_from_db()
