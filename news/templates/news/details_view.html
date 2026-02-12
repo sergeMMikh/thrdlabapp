@@ -6,6 +6,7 @@
     <div class="features">
         <h1>{{ title }}</h1>
         <h1>{{ article.title }}</h1>
+        <p><b>Author:</b> {{ article.author }}</p>
         <p>{{  article.date }}</p>
         <p>{{  article.full_text }}</p>
         <a href="{% url 'news-delete' article.id %}" class="btn btn-danger"> Delete</a>

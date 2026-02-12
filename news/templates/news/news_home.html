@@ -5,17 +5,18 @@
 {% block content %}
     <div class="features">
         <h1>{{ title }}</h1>
-        <a href="{% url 'create_news' %}"><button class="btn btn-warning"><i class="fas fa-plus-circle"></i> Add</button></li></a>
+        <a href="{% url 'create_news' %}"><button class="btn btn-warning"><i class="fas fa-plus-circle"></i> Add note</button></li></a>
         {% if news %}
             {% for atc in news %}
                 <div class="alert alert-warning">
                     <h3>{{ atc.title }}</h3>
-                    <p>{{ atc.anons }}</p>
+                    <p><b>Author:</b> {{ atc.author }}</p>
+                    <p class="note-preview">{{ atc.full_text }}</p>
                     <a href="{% url 'news-detail' atc.id %}" class="btn btn-warning"> details </a>
                 </div>
             {% endfor %}
         {% else %}
-            <p> The news list is ampty! </p>
+            <p>The notes list is empty!</p>
         {% endif %}
 
         {# Coments are here #}

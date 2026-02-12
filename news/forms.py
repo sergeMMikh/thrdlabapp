@@ -1,12 +1,11 @@
 from .models import Articles
-from django.forms import ModelForm, TextInput, DateInput, Textarea
+from django.forms import ModelForm, TextInput, Textarea, Select
 
 
 class ArticlesForm(ModelForm):
     class Meta:
         model = Articles
-        # fields = ['title', 'anons', 'full_text', 'date']
-        fields = ('__all__')
+        fields = ('title', 'full_text', 'author')
 
         widgets = {
             "title": TextInput(
@@ -15,22 +14,15 @@ class ArticlesForm(ModelForm):
                     'placeholder': 'Title',
                 },
             ),
-            "anons": TextInput(
+            "author": Select(
                 attrs={
                     'class': 'form-control',
-                    'placeholder': 'Date',
                 },
             ),
             "full_text": Textarea(
                 attrs={
                     'class': 'form-control',
                     'placeholder': 'Text of article',
-                },
-            ),
-            "date": DateInput(
-                attrs={
-                    'class': 'form-control',
-                    'placeholder': 'Publishing Data',
                 },
             ),
         }

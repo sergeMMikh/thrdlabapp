@@ -23,9 +23,9 @@ class NewsDeleteView(DeleteView):
 
 
 def news_home(request):
-    news = Articles.objects.order_by('-date')[:5]
+    news = Articles.objects.order_by('-date', '-id')[:5]
     content = {
-        'title': 'News',
+        'title': 'Notes',
         'news': news,
         'side_bar_image': 'main/img/side_bar_home.png',
     }
@@ -44,7 +44,7 @@ def create_news(request):
 
     form = ArticlesForm()
     content = {
-        'title': 'New news creation.',
+        'title': 'New note creation.',
         'form': form,
         'error': error,
     }
