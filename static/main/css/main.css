@@ -1,6 +1,36 @@
 /* Base background */
 body {
     background: #fefefe;
+    margin: 0;
+}
+
+.home-return-wrap {
+    text-align: right;
+    margin: 0 32px 0 0;
+    padding-top: 20px;
+}
+
+.home-return-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    margin: 0;
+    padding: 7px 11px;
+    border-radius: 0 0 20px 0;
+    color: #ffffff;
+    font-size: 1.33rem;
+    font-weight: 900;
+    text-decoration: none;
+    background: linear-gradient(120deg, #1f2366 0%, #7b2f30 55%, #2f183d 100%);
+    box-shadow: 0 8px 16px rgba(20, 22, 48, 0.28);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.home-return-btn:hover,
+.home-return-btn:focus {
+    color: #ffffff;
+    transform: translateY(-1px);
+    box-shadow: 0 10px 20px rgba(20, 22, 48, 0.35);
 }
 
 table {
