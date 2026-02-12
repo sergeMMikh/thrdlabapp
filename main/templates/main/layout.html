@@ -7,6 +7,7 @@
     <title>{% block title %}{% endblock %}</title>
     {% include 'main/styles.html' %}
     <link rel="stylesheet" href="{% static 'main/css/main.css' %}">
+</head>
 <body>
     <aside{% if side_bar_image %} style="background-image: url('{% static side_bar_image %}');"{% endif %}>
         <img src="{% static 'main/img/4whatsapp.png' %}" alt="SMM">

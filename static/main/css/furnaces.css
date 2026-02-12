@@ -5,20 +5,22 @@ body {
 }
 
 .home-return-wrap {
-    text-align: right;
-    margin: 0 32px 0 0;
-    padding-top: 20px;
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
 }
 
 .home-return-btn {
     display: inline-flex;
     align-items: center;
-    gap: 5px;
+    gap: 3px;
     margin: 0;
-    padding: 7px 11px;
-    border-radius: 0 0 20px 0;
+    padding: 5px 7px;
+    border-radius: 0 0 13px 0;
     color: #ffffff;
-    font-size: 1.33rem;
+    font-size: 0.89rem;
     font-weight: 900;
     text-decoration: none;
     background: linear-gradient(120deg, #1f2366 0%, #7b2f30 55%, #2f183d 100%);

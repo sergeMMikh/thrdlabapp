@@ -7,6 +7,7 @@
     <title>{% block title %}{% endblock %}</title>
     <link rel="stylesheet" href="{% static 'main/css/furnaces.css' %}">
     {% include 'main/styles.html' %}
+</head>
 <body>
     <aside{% if side_bar_image %} style="background-image: url('{% static side_bar_image %}');"{% endif %}>
         <img src="{% static 'main/img/4whatsapp.png' %}" alt="SMM">
@@ -23,5 +24,6 @@
         </div>
         {% block content %}
         {% endblock %}
+    </main>
 </body>
 </html>
