@@ -148,6 +148,13 @@ main .features .home-intro{
     line-height: 1.35;
 }
 
+main .features .note-message {
+    max-width: 700px;
+    margin: 20px auto;
+    text-align: left;
+    line-height: 1.5;
+}
+
 /* for news*/
 .alert-warning {
     float: left;
@@ -186,4 +193,30 @@ form {
     border-color: #8a5400;
     color: #ffffff;
     background: #b76f00;
+}
+
+main .features .btn-danger {
+    background-color: #d98a94;
+    border-color: #d98a94;
+    color: #ffffff;
+}
+
+main .features .btn-danger:hover,
+main .features .btn-danger:focus {
+    background-color: #cc7883;
+    border-color: #cc7883;
+    color: #ffffff;
+}
+
+main .features .btn-info {
+    background-color: #86c9d8;
+    border-color: #86c9d8;
+    color: #16343c;
+}
+
+main .features .btn-info:hover,
+main .features .btn-info:focus {
+    background-color: #74bccd;
+    border-color: #74bccd;
+    color: #16343c;
 }
