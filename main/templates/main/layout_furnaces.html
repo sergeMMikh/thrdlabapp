@@ -15,12 +15,10 @@
         {% include 'main/navigation.html' %}
     </aside>
     <main>
-        <div class="home-return-wrap">
-            {% block home_button %}
+        <div class="home-return-wrap" style="left: 57%; right: auto; transform: translateX(-50%); text-align: left;">
             <a class="home-return-btn" href="{% url 'home' %}">
                 <i class="fas fa-home"></i> Home
             </a>
-            {% endblock %}
         </div>
         {% block content %}
         {% endblock %}
