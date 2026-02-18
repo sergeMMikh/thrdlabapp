@@ -69,9 +69,8 @@ def equipment_booking_view(request):
                         'comments': data.get('comments') or '',
                     })
                     return redirect(f"{reverse('equipment_booking')}?{query}")
-                return redirect(
-                    f"{reverse('equipment')}?{urlencode({'equipment': data['equipment'].name})}",
-                )
+                equipment_query = urlencode({'equipment': data['equipment'].name})
+                return redirect(f"{reverse('equipment')}?{equipment_query}")
     else:
         initial = {}
         person_id = request.GET.get('person')
@@ -121,9 +120,8 @@ def furnace_booking_view(request):
                         'comments': data.get('comments') or '',
                     })
                     return redirect(f"{reverse('furnace_booking')}?{query}")
-                return redirect(
-                    f"{reverse('furnace')}?{urlencode({'furnace': data['furnace'].name})}",
-                )
+                furnace_query = urlencode({'furnace': data['furnace'].name})
+                return redirect(f"{reverse('furnace')}?{furnace_query}")
     else:
         initial = {}
         person_id = request.GET.get('person')
@@ -226,7 +224,8 @@ def delete_furnace_booking_view(request):
         if next_url:
             return redirect(next_url)
         if furnace_name:
-            return redirect(f"{reverse('furnace')}?{urlencode({'furnace': furnace_name})}")
+            furnace_query = urlencode({'furnace': furnace_name})
+            return redirect(f"{reverse('furnace')}?{furnace_query}")
     return redirect(reverse('furnaces'))
 
 
