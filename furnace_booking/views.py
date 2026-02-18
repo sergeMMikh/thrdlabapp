@@ -70,7 +70,7 @@ def equipment_booking_view(request):
                     })
                     return redirect(f"{reverse('equipment_booking')}?{query}")
                 return redirect(
-                    f"{reverse('equipment')}?equipment={data['equipment'].name}",
+                    f"{reverse('equipment')}?{urlencode({'equipment': data['equipment'].name})}",
                 )
     else:
         initial = {}
@@ -121,7 +121,9 @@ def furnace_booking_view(request):
                         'comments': data.get('comments') or '',
                     })
                     return redirect(f"{reverse('furnace_booking')}?{query}")
-                return redirect(f"{reverse('furnace')}?furnace={data['furnace'].name}")
+                return redirect(
+                    f"{reverse('furnace')}?{urlencode({'furnace': data['furnace'].name})}",
+                )
     else:
         initial = {}
         person_id = request.GET.get('person')
@@ -149,8 +151,9 @@ def furnace_book_list(request):
     template = 'furnace_booking_list.html'
 
     furnace_name = request.GET.get('furnace', 'Forno')
-    furnace = Furnace.objects.filter(
-        name=furnace_name)
+    furnace = Furnace.objects.filter(name=furnace_name).first()
+    if furnace is None:
+        return redirect(reverse('furnaces'))
 
     booking = BookingOfFurnace.objects.order_by('date').filter(
         furnace__name=furnace_name).reverse()
@@ -171,7 +174,7 @@ def furnace_book_list(request):
 
         book_list.append(tmp_dict)
 
-    context = {'furnace': furnace[0],
+    context = {'furnace': furnace,
                'date_today': date.today(),
                'booking_list': book_list,
                'side_bar_image': 'main/img/side_bar_img.png'}
@@ -183,8 +186,9 @@ def equipment_book_list(request):
     template = 'equipment_booking_list.html'
 
     equipment_name = request.GET.get('equipment', 'Equipment')
-    equipment = Equipment.objects.filter(
-        name=equipment_name)
+    equipment = Equipment.objects.filter(name=equipment_name).first()
+    if equipment is None:
+        return redirect(reverse('equipments'))
 
     booking = BookingOfEquipment.objects.order_by('date').filter(
         equipment__name=equipment_name).reverse()
@@ -205,7 +209,7 @@ def equipment_book_list(request):
 
         book_list.append(tmp_dict)
 
-    context = {'equipment': equipment[0],
+    context = {'equipment': equipment,
                'date_today': date.today(),
                'booking_list': book_list}
 
@@ -222,7 +226,7 @@ def delete_furnace_booking_view(request):
         if next_url:
             return redirect(next_url)
         if furnace_name:
-            return redirect(f"{reverse('furnace')}?furnace={furnace_name}")
+            return redirect(f"{reverse('furnace')}?{urlencode({'furnace': furnace_name})}")
     return redirect(reverse('furnaces'))
 
 
@@ -236,5 +240,7 @@ def delete_equipment_booking_view(request):
         if next_url:
             return redirect(next_url)
         if equipment_name:
-            return redirect(f"{reverse('equipment')}?equipment={equipment_name}")
+            return redirect(
+                f"{reverse('equipment')}?{urlencode({'equipment': equipment_name})}",
+            )
     return redirect(reverse('equipments'))

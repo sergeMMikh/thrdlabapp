@@ -16,7 +16,7 @@
     <tr>
         <td>&nbsp;&nbsp;{{ equipment.location }}&nbsp;&nbsp;</td>
         <td>&nbsp;&nbsp;
-            <a href="{% url 'equipment'%}?equipment={{equipment.name}}">{{equipment.name}}</a>
+            <a href="{% url 'equipment'%}?equipment={{ equipment.name|urlencode }}">{{equipment.name}}</a>
             &nbsp;&nbsp;
         </td>
     </tr>
