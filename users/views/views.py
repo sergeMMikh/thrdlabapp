@@ -66,13 +66,18 @@ def person_detail_view(request, person_id):
         }
         for booking in equipment_bookings
     ]
-    bookings.sort(key=lambda booking: (booking['date'], booking['kind'], booking['name']))
+    bookings.sort(
+        key=lambda booking: (booking['date'], booking['kind'], booking['name']),
+        reverse=True,
+    )
+    today_bookings = [booking for booking in bookings if booking['date'] == today]
 
     context = {
         'title': 'Person',
         'person': person,
         'side_bar_image': 'main/img/side_bar_person.png',
         'date_today': today,
+        'today_bookings': today_bookings,
         'bookings': bookings,
     }
 
