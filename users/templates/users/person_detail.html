@@ -41,10 +41,17 @@
                 </tr>
                 {% for booking in bookings %}
                     <tr>
+                        {% if booking.date == date_today %}
+                        <td>&nbsp;&nbsp;<b>{{ booking.date }}</b>&nbsp;&nbsp;</td>
+                        <td>&nbsp;&nbsp;<b>{{ booking.kind }}</b>&nbsp;&nbsp;</td>
+                        <td>&nbsp;&nbsp;<b>{{ booking.name }}</b>&nbsp;&nbsp;</td>
+                        <td>&nbsp;&nbsp;<b><i>{{ booking.comments }}</i></b>&nbsp;&nbsp;</td>
+                        {% else %}
                         <td>&nbsp;&nbsp;{{ booking.date }}&nbsp;&nbsp;</td>
                         <td>&nbsp;&nbsp;{{ booking.kind }}&nbsp;&nbsp;</td>
                         <td>&nbsp;&nbsp;{{ booking.name }}&nbsp;&nbsp;</td>
                         <td>&nbsp;&nbsp;<i>{{ booking.comments }}</i>&nbsp;&nbsp;</td>
+                        {% endif %}
                         <td>
                             {% if booking.kind_key == 'furnace' %}
                                 <form method="post" action="{% url 'delete_furnace_booking' %}" onsubmit="return confirm('Are you sure you want to delete this booking?');">
