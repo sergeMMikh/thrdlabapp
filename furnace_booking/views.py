@@ -220,7 +220,9 @@ def delete_furnace_booking_view(request):
         furnace_name = request.POST.get('furnace_name')
         next_url = request.POST.get('next')
         if booking_id:
-            BookingOfFurnace.objects.filter(id=booking_id).delete()
+            booking = BookingOfFurnace.objects.filter(id=booking_id).first()
+            if booking and booking.date >= date.today():
+                booking.delete()
         if next_url:
             return redirect(next_url)
         if furnace_name:
@@ -235,7 +237,9 @@ def delete_equipment_booking_view(request):
         equipment_name = request.POST.get('equipment_name')
         next_url = request.POST.get('next')
         if booking_id:
-            BookingOfEquipment.objects.filter(id=booking_id).delete()
+            booking = BookingOfEquipment.objects.filter(id=booking_id).first()
+            if booking and booking.date >= date.today():
+                booking.delete()
         if next_url:
             return redirect(next_url)
         if equipment_name:

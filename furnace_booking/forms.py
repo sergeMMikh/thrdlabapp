@@ -26,6 +26,16 @@ class FurnaceBookingForm(forms.Form):
         label='Comments',
     )
 
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['date'].widget.attrs['min'] = timezone.localdate().isoformat()
+
+    def clean_date(self):
+        booking_date = self.cleaned_data['date']
+        if booking_date < timezone.localdate():
+            raise forms.ValidationError('You cannot book for a past date.')
+        return booking_date
+
 
 class EquipmentBookingForm(forms.Form):
     person = forms.ModelChoiceField(
@@ -47,3 +57,13 @@ class EquipmentBookingForm(forms.Form):
         widget=forms.Textarea(attrs={'rows': 3}),
         label='Comments',
     )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['date'].widget.attrs['min'] = timezone.localdate().isoformat()
+
+    def clean_date(self):
+        booking_date = self.cleaned_data['date']
+        if booking_date < timezone.localdate():
+            raise forms.ValidationError('You cannot book for a past date.')
+        return booking_date
