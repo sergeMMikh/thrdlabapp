@@ -108,6 +108,27 @@ DATABASES = {
     }
 }
 
+# Allow using SQLite during tests or on CI runners where the Postgres
+# service is not reachable.  The workflow on GitHub previously failed
+# because the host configured in environment variables (192.168.1.160)
+# could not be contacted.  Django's test runner will pass ``test`` in
+# ``sys.argv``; we also check for the ``CI`` env var in case someone
+# uses a different command.  An in‑memory database is fast and
+# self-contained.
+import sys
+# debugging helpers for local troubleshooting (disabled)
+
+# Use SQLite if running the Django test runner (``manage.py test``),
+# executing ``pytest`` (which doesn't put ``test`` in argv), or in a CI
+# environment.  Without this the database connection may try to reach a
+# remote Postgres host that isn't accessible (see GitHub workflow failures).
+if (any(x in sys.argv for x in ('test', 'pytest'))
+        or os.environ.get('CI')):
+    DATABASES['default'] = {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': ':memory:',
+    }
+
 # Password validation
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators
 
