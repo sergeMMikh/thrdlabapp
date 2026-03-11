@@ -29,6 +29,9 @@ def home_view(request):
     return render(request, template, context)
 
 
+from django.http import JsonResponse
+
+
 def equipment_list_view(request):
     template = 'main/equipments.html'
 
@@ -143,6 +146,51 @@ def furnace_booking_view(request):
     }
 
     return render(request, template, context)
+
+
+
+
+def check_equipment_availability(request):
+    """AJAX endpoint used by the booking form to tell whether a piece of
+    equipment is already taken for the supplied date.  Accepts GET
+    parameters ``equipment`` (pk) and ``date`` (ISO string).  Returns JSON
+    ``{'available': bool}``.
+    """
+    equipment_id = request.GET.get('equipment')
+    date_str = request.GET.get('date')
+    available = True
+    if equipment_id and date_str:
+        try:
+            # date input returns YYYY-MM-DD; let Python parse it directly
+            booking_date = date.fromisoformat(date_str)
+            exists = BookingOfEquipment.objects.filter(
+                equipment_id=equipment_id,
+                date=booking_date,
+            ).exists()
+            available = not exists
+        except ValueError:
+            # malformed date, just ignore
+            available = True
+    return JsonResponse({'available': available})
+
+
+def check_furnace_availability(request):
+    """Same as ``check_equipment_availability`` but for furnaces.``
+    """
+    furnace_id = request.GET.get('furnace')
+    date_str = request.GET.get('date')
+    available = True
+    if furnace_id and date_str:
+        try:
+            booking_date = date.fromisoformat(date_str)
+            exists = BookingOfFurnace.objects.filter(
+                furnace_id=furnace_id,
+                date=booking_date,
+            ).exists()
+            available = not exists
+        except ValueError:
+            available = True
+    return JsonResponse({'available': available})
 
 
 def furnace_book_list(request):
