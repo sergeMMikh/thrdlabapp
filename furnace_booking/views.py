@@ -3,6 +3,7 @@ from django.shortcuts import render, redirect
 from django.urls import reverse
 from datetime import date, timedelta
 from urllib.parse import urlencode
+from django.http import JsonResponse
 from .models import Furnace, BookingOfFurnace, Equipment, BookingOfEquipment
 from .forms import FurnaceBookingForm, EquipmentBookingForm
 
@@ -27,9 +28,6 @@ def home_view(request):
     print(f"context: {context}")
 
     return render(request, template, context)
-
-
-from django.http import JsonResponse
 
 
 def equipment_list_view(request):
@@ -146,8 +144,6 @@ def furnace_booking_view(request):
     }
 
     return render(request, template, context)
-
-
 
 
 def check_equipment_availability(request):
