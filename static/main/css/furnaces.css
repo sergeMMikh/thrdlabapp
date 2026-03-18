@@ -161,3 +161,38 @@ main .features table{
     padding: 3.2px 12px;
     text-align: center;
 }
+
+.people-actions {
+    margin-top: 28px;
+}
+
+.people-action-btn {
+    display: inline-block;
+    padding: 12px 18px;
+    border-radius: 10px;
+    color: #ffffff;
+    font-weight: 700;
+    text-decoration: none;
+    background: linear-gradient(135deg, #0f6fb2 0%, #1444a7 100%);
+    box-shadow: 0 10px 18px rgba(20, 68, 167, 0.22);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.people-action-btn:hover,
+.people-action-btn:focus {
+    color: #ffffff;
+    text-decoration: none;
+    transform: translateY(-1px);
+    box-shadow: 0 12px 20px rgba(20, 68, 167, 0.28);
+}
+
+.today-bookings-table {
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.today-bookings-table th,
+.today-bookings-table td {
+    text-align: center;
+    vertical-align: middle;
+}

@@ -1,6 +1,5 @@
-import datetime as dt
-
 from django.shortcuts import render
+from django.utils import timezone
 
 from furnace_booking.models import BookingOfEquipment, BookingOfFurnace
 from ..models import Person
@@ -30,7 +29,7 @@ def people_list_view(request):
 def person_detail_view(request, person_id):
     template = 'users/person_detail.html'
     person = Person.objects.get(id=person_id)
-    today = dt.date.today()
+    today = timezone.localdate()
 
     furnace_bookings = BookingOfFurnace.objects.select_related(
         'furnace',
@@ -79,6 +78,47 @@ def person_detail_view(request, person_id):
         'date_today': today,
         'today_bookings': today_bookings,
         'bookings': bookings,
+    }
+
+    return render(request, template, context)
+
+
+def today_equipment_bookings_view(request):
+    template = 'users/today_equipment_bookings.html'
+    today = timezone.localdate()
+
+    equipment_bookings = BookingOfEquipment.objects.select_related(
+        'equipment',
+        'person',
+    ).filter(
+        date=today,
+    ).order_by(
+        'equipment__location',
+        'equipment__name',
+        'person__first_name',
+        'person__surname',
+    )
+
+    bookings = [
+        {
+            'id': booking.id,
+            'date': booking.date,
+            'equipment_name': booking.equipment.name,
+            'equipment_location': booking.equipment.location,
+            'person_id': booking.person.id,
+            'person_name': str(booking.person),
+            'person_email': booking.person.email or '',
+            'person_phone': booking.person.telephone_number or '',
+            'comments': booking.comments or '',
+        }
+        for booking in equipment_bookings
+    ]
+
+    context = {
+        'title': "Today's equipment bookings",
+        'date_today': today,
+        'bookings': bookings,
+        'side_bar_image': 'main/img/side_bar_person.png',
     }
 
     return render(request, template, context)

@@ -31,5 +31,11 @@
         {% else %}
             <p>No people yet.</p>
         {% endif %}
+
+        <div class="people-actions">
+            <a class="people-action-btn" href="{% url 'today_equipment_bookings' %}">
+                View today's equipment bookings
+            </a>
+        </div>
     </div>
 {% endblock %}
