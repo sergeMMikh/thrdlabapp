@@ -4,7 +4,12 @@ from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
 
-from furnace_booking.models import BookingOfEquipment, BookingOfFurnace, Equipment, Furnace
+from furnace_booking.models import (
+    BookingOfEquipment,
+    BookingOfFurnace,
+    Equipment,
+    Furnace,
+)
 from users.models import Person
 
 

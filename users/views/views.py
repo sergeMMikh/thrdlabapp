@@ -137,7 +137,14 @@ def today_equipment_bookings_view(request):
         }
         for booking in furnace_bookings
     ]
-    bookings.sort(key=lambda booking: (booking['item_location'], booking['kind'], booking['item_name'], booking['person_name']))
+    bookings.sort(
+        key=lambda booking: (
+            booking['item_location'],
+            booking['kind'],
+            booking['item_name'],
+            booking['person_name'],
+        ),
+    )
 
     context = {
         'title': "Today's bookings",
