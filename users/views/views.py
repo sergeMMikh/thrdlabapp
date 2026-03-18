@@ -98,24 +98,49 @@ def today_equipment_bookings_view(request):
         'person__first_name',
         'person__surname',
     )
+    furnace_bookings = BookingOfFurnace.objects.select_related(
+        'furnace',
+        'person',
+    ).filter(
+        date=today,
+    ).order_by(
+        'furnace__location',
+        'furnace__name',
+        'person__first_name',
+        'person__surname',
+    )
 
     bookings = [
         {
             'id': booking.id,
             'date': booking.date,
-            'equipment_name': booking.equipment.name,
-            'equipment_location': booking.equipment.location,
+            'kind': 'Equipment',
+            'item_name': booking.equipment.name,
+            'item_location': booking.equipment.location,
             'person_id': booking.person.id,
             'person_name': str(booking.person),
             'person_email': booking.person.email or '',
             'person_phone': booking.person.telephone_number or '',
-            'comments': booking.comments or '',
         }
         for booking in equipment_bookings
+    ] + [
+        {
+            'id': booking.id,
+            'date': booking.date,
+            'kind': 'Furnace',
+            'item_name': booking.furnace.name,
+            'item_location': booking.furnace.location,
+            'person_id': booking.person.id,
+            'person_name': str(booking.person),
+            'person_email': booking.person.email or '',
+            'person_phone': booking.person.telephone_number or '',
+        }
+        for booking in furnace_bookings
     ]
+    bookings.sort(key=lambda booking: (booking['item_location'], booking['kind'], booking['item_name'], booking['person_name']))
 
     context = {
-        'title': "Today's equipment bookings",
+        'title': "Today's bookings",
         'date_today': today,
         'bookings': bookings,
         'side_bar_image': 'main/img/side_bar_person.png',

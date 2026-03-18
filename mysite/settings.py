@@ -28,9 +28,12 @@ SECRET_KEY = config(
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['127.0.0.1',
-                 'https://electrochemistry-lab.up.railway.app',
-                 'electrochemistry-lab.up.railway.app']
+ALLOWED_HOSTS = [
+    '127.0.0.1',
+    '192.168.1.160',
+    'https://electrochemistry-lab.up.railway.app',
+    'electrochemistry-lab.up.railway.app',
+]
 
 AUTH_USER_MODEL = 'users.User'
 
