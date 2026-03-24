@@ -46,6 +46,48 @@ def test_user_register_missing_fields_returns_400(client):
     assert response.json()['Status'] is False
 
 
+def test_user_register_returns_readable_error_for_too_long_first_name(
+    client,
+    strong_password,
+):
+    response = client.post(
+        reverse('orders:user-register'),
+        data={
+            'first_name': 'I' * 151,
+            'last_name': 'Petrov',
+            'email': 'long-name@example.com',
+            'password': strong_password,
+        },
+    )
+
+    assert response.status_code == 200
+    assert response.json()['Status'] is False
+    assert response.json()['Errors']['first_name'] == [
+        'First name is too long. Maximum length is 150 characters.',
+    ]
+
+
+def test_user_register_returns_readable_error_for_too_long_email(
+    client,
+    strong_password,
+):
+    response = client.post(
+        reverse('orders:user-register'),
+        data={
+            'first_name': 'Ivan',
+            'last_name': 'Petrov',
+            'email': f"{'a' * 245}@example.com",
+            'password': strong_password,
+        },
+    )
+
+    assert response.status_code == 200
+    assert response.json()['Status'] is False
+    assert response.json()['Errors']['email'] == [
+        'Email is too long. Maximum length is 254 characters.',
+    ]
+
+
 def test_user_login_success_for_verified_user(client, strong_password):
     user = User.objects.create_user(
         email='login-ok@example.com',

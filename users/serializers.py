@@ -26,6 +26,36 @@ class UserSerializer(ModelSerializer):
         fields = ('id', 'first_name', 'last_name', 'email',
                   'email_is_verified')
         read_only_fields = ('id',)
+        extra_kwargs = {
+            'first_name': {
+                'error_messages': {
+                    'max_length': (
+                        'First name is too long. Maximum length is 150 '
+                        'characters.'
+                    ),
+                    'blank': 'First name cannot be empty.',
+                },
+            },
+            'last_name': {
+                'error_messages': {
+                    'max_length': (
+                        'Last name is too long. Maximum length is 150 '
+                        'characters.'
+                    ),
+                },
+            },
+            'email': {
+                'error_messages': {
+                    'max_length': (
+                        'Email is too long. Maximum length is 254 '
+                        'characters.'
+                    ),
+                    'invalid': 'Enter a valid email address.',
+                    'blank': 'Email cannot be empty.',
+                    'unique': 'A user with this email already exists.',
+                },
+            },
+        }
 
 
 # class ProductSerializer(ModelSerializer):
