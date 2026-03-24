@@ -15,3 +15,7 @@ sudo systemctl restart nginx
 sudo systemctl status thrdlabapp --no-pager
 sudo systemctl status nginx --no-pager
 curl -I http://127.0.0.1/
+
+
+git fetch origin
+git reset --hard origin/main

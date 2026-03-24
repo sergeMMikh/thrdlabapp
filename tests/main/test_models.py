@@ -8,6 +8,7 @@ from furnace_booking.models import (
     BookingOfFurnace,
     Equipment,
     Furnace,
+    Laboratory,
 )
 from news.models import Articles
 from users.models import ConfirmEmailToken, Person, User
@@ -50,10 +51,20 @@ def person():
 
 
 @pytest.fixture
-def furnace():
+def laboratory_a():
+    return Laboratory.objects.create(number='Lab A', name='Laboratory A')
+
+
+@pytest.fixture
+def laboratory_b():
+    return Laboratory.objects.create(number='Lab B', name='Laboratory B')
+
+
+@pytest.fixture
+def furnace(laboratory_a):
     return Furnace.objects.create(
         name='Furnace-1',
-        location='Lab A',
+        laboratory=laboratory_a,
         serviceable=True,
         max_temperature=1200,
         min_temperature=200,
@@ -62,8 +73,8 @@ def furnace():
 
 
 @pytest.fixture
-def equipment():
-    return Equipment.objects.create(name='Press-1', location='Lab B')
+def equipment(laboratory_b):
+    return Equipment.objects.create(name='Press-1', laboratory=laboratory_b)
 
 
 @pytest.fixture
@@ -136,6 +147,8 @@ def test_furnace_and_equipment_str_and_person_relation(person, furnace, equipmen
     assert str(equipment) == 'Press-1'
     assert person in furnace.user.all()
     assert person in equipment.user.all()
+    assert furnace.location == 'Lab A'
+    assert equipment.location == 'Lab B'
 
 
 def test_booking_of_furnace_unique_constraint(
@@ -200,17 +213,18 @@ def test_person_update_fields():
     assert person.surname == 'Surname'
 
 
-def test_furnace_update_fields():
+def test_furnace_update_fields(laboratory_a):
+    laboratory_c = Laboratory.objects.create(number='Lab C', name='Laboratory C')
     furnace = Furnace.objects.create(
         name='Furnace-1',
-        location='Lab A',
+        laboratory=laboratory_a,
         serviceable=True,
         max_temperature=1200,
         min_temperature=200,
         is_clean=True,
     )
 
-    furnace.location = 'Lab C'
+    furnace.laboratory = laboratory_c
     furnace.serviceable = False
     furnace.save()
     furnace.refresh_from_db()

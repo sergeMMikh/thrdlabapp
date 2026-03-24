@@ -11,7 +11,9 @@ https://docs.djangoproject.com/en/4.0/ref/settings/
 """
 
 import os
+import sys
 from pathlib import Path
+
 from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -26,14 +28,29 @@ SECRET_KEY = config(
     default='django-insecure-rc^*w^w&6g9_(uvx#6s*bnt!w)l0rdi%!l7mv#y%uc&x%wo5pk')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
 
-ALLOWED_HOSTS = [
-    '127.0.0.1',
-    '192.168.1.160',
-    'https://electrochemistry-lab.up.railway.app',
-    'electrochemistry-lab.up.railway.app',
-]
+
+def env_bool(name, default=False):
+    value = str(config(name, default=str(default))).strip().lower()
+    if value in {'1', 'true', 'yes', 'on'}:
+        return True
+    if value in {'0', 'false', 'no', 'off', 'release', 'prod', 'production'}:
+        return False
+    return bool(default)
+
+
+def env_list(name, default):
+    value = config(name, default=default)
+    return [item.strip() for item in value.split(',') if item.strip()]
+
+
+DEBUG = env_bool('DEBUG', default=True)
+
+
+ALLOWED_HOSTS = env_list(
+    'ALLOWED_HOSTS',
+    '127.0.0.1,192.168.1.160,electrochemistry-lab.up.railway.app',
+)
 
 AUTH_USER_MODEL = 'users.User'
 
@@ -118,8 +135,6 @@ DATABASES = {
 # ``sys.argv``; we also check for the ``CI`` env var in case someone
 # uses a different command.  An in‑memory database is fast and
 # self-contained.
-import sys
-# debugging helpers for local troubleshooting (disabled)
 
 # Use SQLite if running the Django test runner (``manage.py test``),
 # executing ``pytest`` (which doesn't put ``test`` in argv), or in a CI
@@ -172,7 +187,10 @@ STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles")
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-CSRF_TRUSTED_ORIGINS = ["https://electrochemistry-lab.up.railway.app"]
+CSRF_TRUSTED_ORIGINS = env_list(
+    'CSRF_TRUSTED_ORIGINS',
+    'https://electrochemistry-lab.up.railway.app',
+)
 # CSRF_TRUSTED_ORIGINS = ["https://*", "http://*"]
 
 

@@ -5,6 +5,7 @@ from furnace_booking.models import (
     BookingOfFurnace,
     Equipment,
     BookingOfEquipment,
+    Laboratory,
 )
 
 
@@ -18,26 +19,32 @@ class BookingOfEquipmentInLine(admin.TabularInline):
     extra = 3
 
 
+@admin.register(Laboratory)
+class LaboratoryAdmin(admin.ModelAdmin):
+    list_display = ('number', 'name')
+    search_fields = ('number', 'name')
+
+
 @admin.register(Furnace)
 class FurnaceAdmin(admin.ModelAdmin):
-    list_display = 'name', 'location', 'max_temperature', \
+    list_display = 'name', 'laboratory', 'max_temperature', \
                    'min_temperature', 'is_clean', 'serviceable'
-    fields = ['location',
+    fields = ['laboratory',
               'name',
               'max_temperature',
               'min_temperature',
               'is_clean',
               'serviceable']
     inlines = [BookingOfFurnaceInLine]
-    list_filter = ('location',)
+    list_filter = ('laboratory',)
 
 
 @admin.register(Equipment)
 class EquipmentAdmin(admin.ModelAdmin):
-    list_display = ('name', 'location')
-    fields = ('location', 'name')
+    list_display = ('name', 'laboratory')
+    fields = ('laboratory', 'name')
     inlines = [BookingOfEquipmentInLine]
-    list_filter = ('location',)
+    list_filter = ('laboratory',)
 
 
 @admin.register(BookingOfFurnace)

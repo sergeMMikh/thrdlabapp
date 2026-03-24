@@ -5,34 +5,29 @@
 {% block content %}
     <div class="features">
         <h1>Furnace List:</h1>
-    
-<!--<style>-->
-<!--    table {-->
-<!--        margin-left: auto;-->
-<!--        margin-right: auto;-->
-<!--    }-->
-<!--</style>-->
 
-<table>
-
-    <tbody>
-    <tr>
-        <th>Laboratory</th>
-        <th>Furnace</th>
-    </tr>
-    {% for furnace in furnaces %}
-    <tr>
-        <td>&nbsp;&nbsp;{{ furnace.location }}&nbsp;&nbsp;</td>
-        <td>&nbsp;&nbsp;
-            <a href="{% url 'furnace'%}?furnace={{ furnace.name|urlencode }}">{{furnace.name}}</a>
-            &nbsp;&nbsp;
-        </td>
-    </tr>
-    {% endfor %}
-    </tbody>
-</table>
-<!--        <a href="{% url 'home' %}">-->
-<!--            <button class="btn btn-primary" href="{% url 'home' %}">Home</button>-->
-<!--        </a>-->
+        <div class="furnace-groups">
+            {% for group in furnace_groups %}
+                <section class="furnace-group">
+                    <h2>Laboratory {{ group.location }}</h2>
+                    <p>{{ group.laboratory_name }}</p>
+                    <table class="furnace-table">
+                        <tbody>
+                            <tr>
+                                <th>Furnace</th>
+                            </tr>
+                            {% for furnace in group.furnaces %}
+                                <tr>
+                                    <td>&nbsp;&nbsp;
+                                        <a href="{% url 'furnace'%}?furnace={{ furnace.name|urlencode }}">{{ furnace.name }}</a>
+                                        &nbsp;&nbsp;
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </section>
+            {% endfor %}
+        </div>
     </div>
 {% endblock %}

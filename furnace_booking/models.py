@@ -1,15 +1,29 @@
 from django.db import models
 
-from users.models import User, Person
+from users.models import Person
+
+
+class Laboratory(models.Model):
+    number = models.CharField(max_length=100, unique=True)
+    name = models.CharField(max_length=255, unique=True)
+
+    class Meta:
+        ordering = ['number']
+
+    def __str__(self):
+        return f'{self.number} - {self.name}'
 
 
 class BaseEquipment(models.Model):
     # equipment name in laboratory specifications
     name = models.CharField(max_length=100)
 
-    # location in laboratory
-    location = models.CharField(max_length=100,
-                                verbose_name='location')
+    laboratory = models.ForeignKey(
+        Laboratory,
+        on_delete=models.PROTECT,
+        related_name='%(class)ss',
+        verbose_name='laboratory',
+    )
 
     # ip = models.CharField(max_length=20, null=True, blank=True)
     # port = models.CharField(max_length=6, null=True, blank=True)
@@ -21,6 +35,14 @@ class BaseEquipment(models.Model):
 
     class Meta:
         abstract = True
+
+    @property
+    def location(self):
+        return self.laboratory.number
+
+    @property
+    def laboratory_name(self):
+        return self.laboratory.name
 
 
 class Furnace(BaseEquipment):

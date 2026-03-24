@@ -89,22 +89,24 @@ def today_equipment_bookings_view(request):
 
     equipment_bookings = BookingOfEquipment.objects.select_related(
         'equipment',
+        'equipment__laboratory',
         'person',
     ).filter(
         date=today,
     ).order_by(
-        'equipment__location',
+        'equipment__laboratory__number',
         'equipment__name',
         'person__first_name',
         'person__surname',
     )
     furnace_bookings = BookingOfFurnace.objects.select_related(
         'furnace',
+        'furnace__laboratory',
         'person',
     ).filter(
         date=today,
     ).order_by(
-        'furnace__location',
+        'furnace__laboratory__number',
         'furnace__name',
         'person__first_name',
         'person__surname',

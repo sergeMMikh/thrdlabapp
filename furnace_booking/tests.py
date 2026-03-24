@@ -3,7 +3,13 @@ from datetime import date
 from django.test import TestCase
 from django.urls import reverse
 
-from .models import Equipment, Furnace, BookingOfEquipment, BookingOfFurnace
+from .models import (
+    Equipment,
+    Furnace,
+    BookingOfEquipment,
+    BookingOfFurnace,
+    Laboratory,
+)
 from users.models import Person
 
 
@@ -12,10 +18,17 @@ class AvailabilityAPITest(TestCase):
         # minimal objects required for bookings
         # Person has only name fields
         self.person = Person.objects.create(first_name='Test', surname='User')
-        self.equipment = Equipment.objects.create(name='Eq1', location='Lab')
+        self.laboratory = Laboratory.objects.create(
+            number='Lab',
+            name='Test Laboratory',
+        )
+        self.equipment = Equipment.objects.create(
+            name='Eq1',
+            laboratory=self.laboratory,
+        )
         self.furnace = Furnace.objects.create(
             name='F1',
-            location='Lab',
+            laboratory=self.laboratory,
             serviceable=True,
             max_temperature=100,
             min_temperature=0,

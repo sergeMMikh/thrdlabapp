@@ -150,6 +150,41 @@ main .features table{
     margin-right: auto;
 }
 
+.furnace-groups {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 24px;
+    max-width: 1100px;
+    margin: 0 auto;
+    align-items: start;
+}
+
+.furnace-group {
+    width: 100%;
+    min-width: 0;
+}
+
+.furnace-group h2 {
+    margin: 0 0 6px;
+    font-size: 28px;
+}
+
+.furnace-group p {
+    margin: 0 0 14px;
+    font-size: 16px;
+    color: rgba(0, 0, 0, 0.72);
+}
+
+.furnace-table {
+    width: 100%;
+    border-spacing: 6px 0;
+}
+
+.furnace-table th,
+.furnace-table td {
+    padding: 4px 6px;
+}
+
 .people-table{
     margin-left: auto;
     margin-right: auto;
@@ -195,4 +230,22 @@ main .features table{
 .today-bookings-table td {
     text-align: center;
     vertical-align: middle;
+}
+
+@media (max-width: 900px) {
+    aside {
+        width: 100%;
+        height: auto;
+        float: none;
+    }
+
+    main .features {
+        float: none;
+        width: auto;
+        margin: 60px 20px 40px;
+    }
+
+    .furnace-groups {
+        grid-template-columns: 1fr;
+    }
 }

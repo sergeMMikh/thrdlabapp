@@ -3,6 +3,7 @@ from django.shortcuts import render, redirect
 from django.urls import reverse
 from datetime import date, timedelta
 from urllib.parse import urlencode
+from itertools import groupby
 from django.http import JsonResponse
 from .models import Furnace, BookingOfFurnace, Equipment, BookingOfEquipment
 from .forms import FurnaceBookingForm, EquipmentBookingForm
@@ -11,21 +12,30 @@ from .forms import FurnaceBookingForm, EquipmentBookingForm
 def home_view(request):
     template = 'main/furnaces.html'
 
-    context = {}
-
-    furnaces = Furnace.objects.all().order_by('location', 'name')
-
-    print(f'type(furnaces): {type(furnaces)}, len(furnaces): {len(furnaces)}')
-
-    context = {'furnaces': furnaces}
+    furnaces = Furnace.objects.select_related('laboratory').order_by(
+        'laboratory__number',
+        'name',
+    )
+    furnace_groups = []
+    for location, location_furnaces in groupby(
+        furnaces,
+        key=lambda furnace: furnace.laboratory.number,
+    ):
+        grouped_furnaces = list(location_furnaces)
+        furnace_groups.append(
+            {
+                'location': location,
+                'laboratory_name': grouped_furnaces[0].laboratory.name,
+                'furnaces': grouped_furnaces,
+            }
+        )
 
     context = {
         'title': 'Furnaces',
         'furnaces': furnaces,
+        'furnace_groups': furnace_groups,
         'side_bar_image': 'main/img/side_bar_img.png',
     }
-
-    print(f"context: {context}")
 
     return render(request, template, context)
 
@@ -33,7 +43,10 @@ def home_view(request):
 def equipment_list_view(request):
     template = 'main/equipments.html'
 
-    equipments = Equipment.objects.all().order_by('location', 'name')
+    equipments = Equipment.objects.select_related('laboratory').order_by(
+        'laboratory__number',
+        'name',
+    )
 
     context = {
         'title': 'Equipment',

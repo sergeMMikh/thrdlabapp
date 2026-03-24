@@ -3,6 +3,7 @@ import datetime as dt
 import pytest
 from django.urls import reverse
 
+from furnace_booking.models import Furnace, Laboratory
 from news.models import Articles
 from users.models import Person
 
@@ -31,6 +32,55 @@ def test_main_pages_render_successfully(client):
         assert response.status_code == 200
         assert template_name in [t.name for t in response.templates]
         assert response.context['title'] == title
+
+
+def test_furnaces_page_groups_furnaces_by_laboratory(client):
+    lab_3210 = Laboratory.objects.create(
+        number='3.2.10',
+        name='Electrochemistry Lab.',
+    )
+    lab_3213 = Laboratory.objects.create(
+        number='3.2.13',
+        name='Thermal Materials Treatment',
+    )
+    Furnace.objects.create(
+        name='V1',
+        laboratory=lab_3210,
+        serviceable=True,
+        max_temperature=1000,
+        min_temperature=100,
+        is_clean=True,
+    )
+    Furnace.objects.create(
+        name='V2',
+        laboratory=lab_3210,
+        serviceable=True,
+        max_temperature=1000,
+        min_temperature=100,
+        is_clean=False,
+    )
+    Furnace.objects.create(
+        name='Furnace1',
+        laboratory=lab_3213,
+        serviceable=True,
+        max_temperature=1200,
+        min_temperature=200,
+        is_clean=True,
+    )
+
+    response = client.get(reverse('furnaces'))
+
+    assert response.status_code == 200
+    assert 'main/furnaces.html' in [t.name for t in response.templates]
+    furnace_groups = response.context['furnace_groups']
+    assert [group['location'] for group in furnace_groups] == ['3.2.10', '3.2.13']
+    assert [furnace.name for furnace in furnace_groups[0]['furnaces']] == ['V1', 'V2']
+    assert [furnace.name for furnace in furnace_groups[1]['furnaces']] == ['Furnace1']
+    content = response.content.decode()
+    assert 'Laboratory 3.2.10' in content
+    assert 'Laboratory 3.2.13' in content
+    assert 'Electrochemistry Lab.' in content
+    assert 'Thermal Materials Treatment' in content
 
 
 def test_news_home_shows_latest_five_articles(client):

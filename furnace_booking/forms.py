@@ -11,7 +11,10 @@ class FurnaceBookingForm(forms.Form):
         label='Person',
     )
     furnace = forms.ModelChoiceField(
-        queryset=Furnace.objects.all().order_by('location', 'name'),
+        queryset=Furnace.objects.select_related('laboratory').order_by(
+            'laboratory__number',
+            'name',
+        ),
         label='Furnace',
     )
     date = forms.DateField(
@@ -43,7 +46,10 @@ class EquipmentBookingForm(forms.Form):
         label='Person',
     )
     equipment = forms.ModelChoiceField(
-        queryset=Equipment.objects.all().order_by('location', 'name'),
+        queryset=Equipment.objects.select_related('laboratory').order_by(
+            'laboratory__number',
+            'name',
+        ),
         label='Equipment',
     )
     date = forms.DateField(

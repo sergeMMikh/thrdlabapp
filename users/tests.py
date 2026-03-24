@@ -9,6 +9,7 @@ from furnace_booking.models import (
     BookingOfFurnace,
     Equipment,
     Furnace,
+    Laboratory,
 )
 from users.models import Person
 
@@ -25,13 +26,17 @@ class TodayEquipmentBookingsViewTests(TestCase):
             first_name='Bob',
             surname='Stone',
         )
+        self.lab_1 = Laboratory.objects.create(number='Lab 1', name='Lab One')
+        self.lab_2 = Laboratory.objects.create(number='Lab 2', name='Lab Two')
+        self.lab_3 = Laboratory.objects.create(number='Lab 3', name='Lab Three')
+        self.lab_4 = Laboratory.objects.create(number='Lab 4', name='Lab Four')
         self.equipment = Equipment.objects.create(
             name='Microscope',
-            location='Lab 1',
+            laboratory=self.lab_1,
         )
         self.furnace = Furnace.objects.create(
             name='Tube Furnace',
-            location='Lab 3',
+            laboratory=self.lab_3,
             serviceable=True,
             max_temperature=1200,
             min_temperature=100,
@@ -47,7 +52,7 @@ class TodayEquipmentBookingsViewTests(TestCase):
         )
         BookingOfEquipment.objects.create(
             date=self.today + timedelta(days=1),
-            equipment=Equipment.objects.create(name='Pump', location='Lab 2'),
+            equipment=Equipment.objects.create(name='Pump', laboratory=self.lab_2),
             person=self.person_tomorrow,
         )
         BookingOfFurnace.objects.create(
@@ -59,7 +64,7 @@ class TodayEquipmentBookingsViewTests(TestCase):
             date=self.today + timedelta(days=1),
             furnace=Furnace.objects.create(
                 name='Box Furnace',
-                location='Lab 4',
+                laboratory=self.lab_4,
                 serviceable=True,
                 max_temperature=1000,
                 min_temperature=50,
