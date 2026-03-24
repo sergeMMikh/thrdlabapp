@@ -27,7 +27,7 @@ def home_view(request):
                 'location': location,
                 'laboratory_name': grouped_furnaces[0].laboratory.name,
                 'furnaces': grouped_furnaces,
-            }
+            },
         )
 
     context = {
