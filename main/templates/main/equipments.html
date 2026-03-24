@@ -9,11 +9,13 @@
 
     <tbody>
     <tr>
+        <th>Laboratory Name</th>
         <th>Laboratory</th>
         <th>Equipment</th>
     </tr>
     {% for equipment in equipments %}
     <tr>
+        <td>&nbsp;&nbsp;{{ equipment.laboratory_name }}&nbsp;&nbsp;</td>
         <td>&nbsp;&nbsp;{{ equipment.location }}&nbsp;&nbsp;</td>
         <td>&nbsp;&nbsp;
             <a href="{% url 'equipment'%}?equipment={{ equipment.name|urlencode }}">{{equipment.name}}</a>

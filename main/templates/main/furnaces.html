@@ -9,8 +9,8 @@
         <div class="furnace-groups">
             {% for group in furnace_groups %}
                 <section class="furnace-group">
-                    <h2>Laboratory {{ group.location }}</h2>
-                    <p>{{ group.laboratory_name }}</p>
+                    <h2 class="furnace-group-title">{{ group.laboratory_name }}</h2>
+                    <p class="furnace-group-number">Laboratory {{ group.location }}</p>
                     <table class="furnace-table">
                         <tbody>
                             <tr>
