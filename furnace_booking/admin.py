@@ -27,7 +27,7 @@ class LaboratoryAdmin(admin.ModelAdmin):
 
 @admin.register(Furnace)
 class FurnaceAdmin(admin.ModelAdmin):
-    save_on_top = True
+    change_form_template = 'admin/furnace_booking/change_form.html'
     list_display = 'name', 'laboratory', 'max_temperature', \
                    'min_temperature', 'is_clean', 'serviceable'
     fields = ['laboratory',
@@ -42,6 +42,7 @@ class FurnaceAdmin(admin.ModelAdmin):
 
 @admin.register(Equipment)
 class EquipmentAdmin(admin.ModelAdmin):
+    change_form_template = 'admin/furnace_booking/change_form.html'
     list_display = ('name', 'laboratory')
     fields = ('laboratory', 'name')
     inlines = [BookingOfEquipmentInLine]
