@@ -27,6 +27,7 @@ class LaboratoryAdmin(admin.ModelAdmin):
 
 @admin.register(Furnace)
 class FurnaceAdmin(admin.ModelAdmin):
+    save_on_top = True
     list_display = 'name', 'laboratory', 'max_temperature', \
                    'min_temperature', 'is_clean', 'serviceable'
     fields = ['laboratory',
