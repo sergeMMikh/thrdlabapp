@@ -200,17 +200,14 @@ def backup_database(container, release):
 
 def activate_static(state, controls, release):
     active = PROJECT / 'staticfiles'
-    if active.is_symlink():
-        previous = active.resolve(strict=True)
-    else:
-        previous = PROJECT / 'static-releases' / ('host-' + release.name)
-        active.rename(previous)
+    if active.is_symlink() or not active.is_dir():
+        raise ValueError('Expected the tracked staticfiles directory.')
+    previous = PROJECT / 'static-releases' / ('previous-' + release.name)
+    active.rename(previous)
     controls.update(static_changed=True, previous_static=str(previous))
     private_text(release / 'controls.json', json.dumps(controls, indent=2))
-    temporary = PROJECT / '.staticfiles.next'
-    temporary.unlink(missing_ok=True)
-    temporary.symlink_to(state['static'], target_is_directory=True)
-    os.replace(temporary, active)
+    Path(state['static']).rename(active)
+    state['static'] = str(active)
 
 
 def install_service(release):
@@ -266,12 +263,12 @@ def restore(release):
         compose('stop', '--timeout', '30', 'web')
     if controls['static_changed']:
         active = PROJECT / 'staticfiles'
-        if active.exists() and not active.is_symlink():
+        if active.is_symlink() or (active.exists() and not active.is_dir()):
             raise RuntimeError('Refusing to replace an unexpected static directory.')
-        temporary = PROJECT / '.staticfiles.next'
-        temporary.unlink(missing_ok=True)
-        temporary.symlink_to(controls['previous_static'], target_is_directory=True)
-        os.replace(temporary, active)
+        if active.exists():
+            stamp = str(time.time_ns())
+            active.rename(PROJECT / 'static-releases' / ('rolled-back-' + stamp))
+        Path(controls['previous_static']).rename(active)
     for name in ('active', 'state'):
         target = PRIVATE / ('active.env' if name == 'active' else 'state.json')
         if controls[name]:

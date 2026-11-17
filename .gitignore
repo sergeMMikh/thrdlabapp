@@ -1,7 +1,6 @@
 # Byte-compiled / optimized / DLL files
 .deployment/
 static-releases/
-.staticfiles.next
 
 __pycache__/
 *.py[cod]
