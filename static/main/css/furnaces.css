@@ -72,7 +72,7 @@ aside img{
     float: left;
     width: 80px;
     height: 80px;
-    border-radius: 20%;
+    border-radius: 0;
     object-fit: contain;
 }
 

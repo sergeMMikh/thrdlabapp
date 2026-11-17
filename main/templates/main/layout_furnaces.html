@@ -5,12 +5,12 @@
     <link rel="icon" type="image/png" sizes="32x32" href="{% static 'main/img/favicon-32x32.png' %}">
     <meta charset="UTF-8">
     <title>{% block title %}{% endblock %}</title>
-    <link rel="stylesheet" href="{% static 'main/css/furnaces.css' %}?v=neon-tga">
+    <link rel="stylesheet" href="{% static 'main/css/furnaces.css' %}?v=blue-kiln">
     {% include 'main/styles.html' %}
 </head>
 <body>
     <aside{% if side_bar_image %} style="background-image: url('{% static side_bar_image %}');"{% endif %}>
-        <img src="{% static 'main/img/neon-tga-icon.png' %}" alt="TEMA laboratory icon">
+        <img src="{% static 'main/img/neon-tga-icon.png' %}?v=blue-kiln" alt="TEMA laboratory icon">
         <span class="smm">Laboratory of Electrochemistry</span>
         {% include 'main/navigation.html' %}
     </aside>
