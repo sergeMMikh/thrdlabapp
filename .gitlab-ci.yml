@@ -1,0 +1,646 @@
+workflow:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_BRANCH == "main"'
+    - if: '$CI_COMMIT_BRANCH && $CI_OPEN_MERGE_REQUESTS'
+      when: never
+    - if: '$CI_COMMIT_BRANCH'
+    - when: never
+
+stages:
+  - validate
+  - auth
+  - lint
+  - test
+  - sast
+  - secret-scan
+  - dependency-audit
+  - security-audit
+  - build
+  - image-scan
+  - security-scan
+  - security-gateway
+
+validate:variables:
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+
+  stage: validate
+  tags:
+    - thrdlabapp
+    - docker
+    - build
+  image: alpine:3.20
+
+  script:
+    - test -n "$DOCKERHUB_USERNAME"
+    - test -n "$DOCKERHUB_TOKEN"
+    - echo "All required CI/CD variables are available"
+
+auth:dockerhub:
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+
+  stage: auth
+  tags:
+    - thrdlabapp
+    - docker
+    - build
+  image: docker:27-cli
+
+  script:
+    - echo "$DOCKERHUB_TOKEN" | docker login --username "$DOCKERHUB_USERNAME" --password-stdin
+    - echo "Docker Hub authentication successful"
+    - docker logout
+
+lint:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_BRANCH'
+
+  stage: lint
+  tags:
+    - thrdlabapp
+    - docker
+    - build
+  image: python:3.10-slim
+
+  before_script:
+    - python --version
+    - pip install --no-cache-dir -r requirements-lint.txt
+
+  script:
+    - python -m flake8 .
+
+test:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_BRANCH'
+
+  stage: test
+  tags:
+    - thrdlabapp
+    - docker
+    - build
+  image: python:3.12-slim
+
+  before_script:
+    - apt-get update
+    - apt-get install -y --no-install-recommends chromium chromium-driver
+    - rm -rf /var/lib/apt/lists/*
+    - python --version
+    - chromium --version
+    - chromedriver --version
+    - pip install --no-cache-dir -r requirements-test.txt
+
+  script:
+    - python -m pytest -q --junitxml=pytest-report.xml
+
+  artifacts:
+    when: always
+    reports:
+      junit: pytest-report.xml
+    paths:
+      - pytest-report.xml
+    expire_in: 1 week
+
+sast:bandit:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_BRANCH == "main"'
+
+  stage: sast
+  tags:
+    - thrdlabapp
+    - security
+    - sast
+  image: python:3.10-slim
+  needs:
+    - test
+
+  before_script:
+    - python --version
+    - pip install --no-cache-dir -r requirements-security.txt
+
+  script:
+    - bandit -r . -f json -o bandit-report.json || true
+
+  artifacts:
+    when: always
+    paths:
+      - bandit-report.json
+    expire_in: 1 week
+
+sast:semgrep:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_BRANCH == "main"'
+
+  stage: sast
+  tags:
+    - thrdlabapp
+    - security
+    - sast
+  image: semgrep/semgrep:1.136.0
+  needs:
+    - test
+
+  script:
+    - semgrep scan --config auto --json --output semgrep-report.json .
+
+  artifacts:
+    when: always
+    paths:
+      - semgrep-report.json
+    expire_in: 1 week
+
+  allow_failure: true
+
+security:trufflehog:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_BRANCH == "main"'
+
+  stage: secret-scan
+  tags:
+    - thrdlabapp
+    - security
+    - sast
+  image:
+    name: ghcr.io/trufflesecurity/trufflehog:latest
+    entrypoint: [""]
+  variables:
+    GIT_DEPTH: "0"
+
+  script:
+    - trufflehog --version
+    - trufflehog git "file://$CI_PROJECT_DIR" --json --no-update > trufflehog-report.json
+    - echo "TruffleHog secret scan completed"
+
+  artifacts:
+    when: always
+    paths:
+      - trufflehog-report.json
+    expire_in: 1 week
+
+security:pip-audit:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_BRANCH == "main"'
+
+  stage: dependency-audit
+  tags:
+    - thrdlabapp
+    - security
+    - sast
+  image: python:3.10-slim
+
+  before_script:
+    - python --version
+    - pip install --no-cache-dir pip-audit
+
+  script:
+    - pip-audit -r requirements.txt -f json -o pip-audit-report.json || true
+    - python -c "import json; d=json.load(open('pip-audit-report.json')); print('pip-audit report generated')"
+
+  artifacts:
+    when: always
+    paths:
+      - pip-audit-report.json
+    expire_in: 1 week
+
+security:trivy-fs:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+    - if: '$CI_COMMIT_BRANCH == "main"'
+
+  stage: security-audit
+  tags:
+    - thrdlabapp
+    - security
+    - sast
+  image:
+    name: aquasec/trivy:0.66.0
+    entrypoint: [""]
+
+  script:
+    - trivy --version
+    - trivy fs --scanners vuln,misconfig,secret --format json --output trivy-fs-report.json .
+    - trivy config --format json --output trivy-config-report.json .
+
+  artifacts:
+    when: always
+    paths:
+      - trivy-fs-report.json
+      - trivy-config-report.json
+    expire_in: 1 week
+
+  allow_failure: true
+
+build:image:
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+
+  stage: build
+  tags:
+    - thrdlabapp
+    - docker
+    - build
+  image: docker:27-cli
+  needs:
+    - job: test
+      optional: true
+
+  services:
+    - name: docker:27-dind
+      alias: docker
+
+  variables:
+    DOCKER_HOST: tcp://docker:2375
+    DOCKER_TLS_CERTDIR: ""
+
+  before_script:
+    - echo "$DOCKERHUB_TOKEN" | docker login --username "$DOCKERHUB_USERNAME" --password-stdin
+
+  script:
+    - IMAGE="$DOCKERHUB_USERNAME/thrdlabapp-devsecops-diploma"
+    - TAG="$CI_COMMIT_SHORT_SHA"
+    - echo "Building Docker image with tag $TAG"
+    - docker build --pull -t "$IMAGE:$TAG" -t "$IMAGE:latest" .
+    - docker push "$IMAGE:$TAG"
+    - docker push "$IMAGE:latest"
+    - echo "Docker image published successfully"
+
+  after_script:
+    - docker logout
+
+security:trivy-image:
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+
+  stage: image-scan
+  tags:
+    - thrdlabapp
+    - security
+    - sast
+  image:
+    name: aquasec/trivy:0.66.0
+    entrypoint: [""]
+  needs:
+    - build:image
+
+  variables:
+    TRIVY_NO_PROGRESS: "true"
+
+  script:
+    - IMAGE="$DOCKERHUB_USERNAME/thrdlabapp-devsecops-diploma:$CI_COMMIT_SHORT_SHA"
+    - echo "Scanning Docker image $IMAGE"
+    - trivy image --format json --output trivy-image-report.json "$IMAGE"
+
+  artifacts:
+    when: always
+    paths:
+      - trivy-image-report.json
+    expire_in: 1 week
+
+  allow_failure: true
+
+
+security:mr-feedback:
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+
+  stage: security-gateway
+  tags:
+    - thrdlabapp
+    - security
+    - sast
+  image: python:3.10-slim
+  needs:
+    - job: sast:bandit
+      artifacts: true
+    - job: sast:semgrep
+      artifacts: true
+    - job: security:trufflehog
+      artifacts: true
+    - job: security:pip-audit
+      artifacts: true
+    - job: security:trivy-fs
+      artifacts: true
+
+  script:
+    - test -n "$GITLAB_API_TOKEN"
+    - |
+      python - <<'PY'
+      import json, os, pathlib, urllib.parse, urllib.request
+
+      def load(path, default):
+          p = pathlib.Path(path)
+          if not p.exists() or p.stat().st_size == 0:
+              return default
+          try:
+              return json.loads(p.read_text(encoding="utf-8"))
+          except Exception:
+              return default
+
+      verified = 0
+      p = pathlib.Path("trufflehog-report.json")
+      if p.exists():
+          for line in p.read_text(encoding="utf-8").splitlines():
+              try:
+                  if line.strip() and json.loads(line).get("Verified") is True:
+                      verified += 1
+              except Exception:
+                  pass
+
+      bandit = load("bandit-report.json", {})
+      bandit_high = sum(1 for r in bandit.get("results", [])
+                        if str(r.get("issue_severity", "")).upper() == "HIGH")
+
+      audit = load("pip-audit-report.json", {})
+      audit_vulns = sum(len(dep.get("vulns", []))
+                        for dep in audit.get("dependencies", [])) if isinstance(audit, dict) else 0
+
+      trivy = load("trivy-fs-report.json", {})
+      counts = {"CRITICAL": 0, "HIGH": 0, "MEDIUM": 0, "LOW": 0}
+      for result in trivy.get("Results", []) if isinstance(trivy, dict) else []:
+          for key in ("Vulnerabilities", "Misconfigurations", "Secrets"):
+              for item in result.get(key) or []:
+                  sev = str(item.get("Severity", "")).upper()
+                  if sev in counts:
+                      counts[sev] += 1
+
+      rec = []
+      if verified:
+          rec.append("- Remove/revoke detected secrets and rotate affected credentials.")
+      if bandit_high:
+          rec.append("- Review HIGH Bandit findings and remediate unsafe Python patterns.")
+      if audit_vulns:
+          rec.append("- Upgrade affected Python dependencies to fixed versions reported by pip-audit.")
+      if counts["CRITICAL"] or counts["HIGH"]:
+          rec.append("- Fix CRITICAL/HIGH Trivy findings before release.")
+      if not rec:
+          rec.append("- No blocking source-level findings detected; continue with review and the trusted main pipeline.")
+
+      body = f"""## Security checks
+
+      | Check | Result |
+      |---|---:|
+      | TruffleHog verified secrets | {verified} |
+      | Bandit HIGH | {bandit_high} |
+      | pip-audit vulnerabilities | {audit_vulns} |
+      | Trivy CRITICAL | {counts['CRITICAL']} |
+      | Trivy HIGH | {counts['HIGH']} |
+      | Trivy MEDIUM | {counts['MEDIUM']} |
+      | Trivy LOW | {counts['LOW']} |
+
+      ### Recommendations
+      {chr(10).join(rec)}
+
+      The production image scan and final Security Gateway run on the trusted `main` pipeline before manual LAN deployment.
+      """
+
+      url = f"{os.environ['CI_API_V4_URL']}/projects/{os.environ['CI_PROJECT_ID']}/merge_requests/{os.environ['CI_MERGE_REQUEST_IID']}/notes"
+      data = urllib.parse.urlencode({"body": body}).encode()
+      req = urllib.request.Request(url, data=data,
+          headers={"PRIVATE-TOKEN": os.environ["GITLAB_API_TOKEN"]}, method="POST")
+      with urllib.request.urlopen(req) as response:
+          print(f"MR security comment published: HTTP {response.status}")
+      PY
+
+security:gateway:
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+
+  stage: security-gateway
+  tags:
+    - thrdlabapp
+    - security
+    - sast
+  image: python:3.10-slim
+  needs:
+    - job: sast:bandit
+      artifacts: true
+    - job: sast:semgrep
+      artifacts: true
+    - job: security:trufflehog
+      artifacts: true
+    - job: security:pip-audit
+      artifacts: true
+    - job: security:trivy-fs
+      artifacts: true
+    - job: security:trivy-image
+      artifacts: true
+
+  script:
+    - |
+      python - <<'PY'
+      import json, pathlib, sys
+
+      blockers = []
+      summary = []
+
+      def load(path, default):
+          p = pathlib.Path(path)
+          if not p.exists() or p.stat().st_size == 0:
+              blockers.append(f"{path}: report is missing or empty")
+              return default
+          try:
+              return json.loads(p.read_text(encoding="utf-8"))
+          except Exception as exc:
+              blockers.append(f"{path}: report cannot be parsed ({exc})")
+              return default
+
+      verified = 0
+      p = pathlib.Path("trufflehog-report.json")
+      if not p.exists():
+          blockers.append("trufflehog-report.json: report is missing")
+      else:
+          for line in p.read_text(encoding="utf-8").splitlines():
+              if not line.strip():
+                  continue
+              try:
+                  if json.loads(line).get("Verified") is True:
+                      verified += 1
+              except Exception:
+                  blockers.append("trufflehog-report.json contains invalid JSON")
+                  break
+      summary.append(f"TruffleHog verified secrets: {verified}")
+      if verified:
+          blockers.append(f"TruffleHog: {verified} verified secret(s)")
+
+      bandit = load("bandit-report.json", {})
+      bandit_high = sum(1 for r in bandit.get("results", [])
+                        if str(r.get("issue_severity", "")).upper() == "HIGH")
+      summary.append(f"Bandit HIGH findings: {bandit_high}")
+      if bandit_high:
+          blockers.append(f"Bandit: {bandit_high} HIGH finding(s)")
+
+      audit = load("pip-audit-report.json", {})
+      audit_vulns = sum(len(dep.get("vulns", []))
+                        for dep in audit.get("dependencies", [])) if isinstance(audit, dict) else 0
+      summary.append(f"pip-audit vulnerabilities: {audit_vulns} (report-only)")
+
+      def trivy(path):
+          report = load(path, {})
+          counts = {"CRITICAL": 0, "HIGH": 0, "MEDIUM": 0, "LOW": 0, "UNKNOWN": 0}
+          for result in report.get("Results", []) if isinstance(report, dict) else []:
+              for key in ("Vulnerabilities", "Misconfigurations", "Secrets"):
+                  for item in result.get(key) or []:
+                      sev = str(item.get("Severity", "UNKNOWN")).upper()
+                      counts[sev if sev in counts else "UNKNOWN"] += 1
+          return counts
+
+      fs = trivy("trivy-fs-report.json")
+      image = trivy("trivy-image-report.json")
+      summary.append("Trivy filesystem: " + ", ".join(f"{k}={v}" for k, v in fs.items()))
+      summary.append("Trivy image: " + ", ".join(f"{k}={v}" for k, v in image.items()))
+
+      for name, counts in (("Trivy filesystem", fs), ("Trivy image", image)):
+          if counts["CRITICAL"] or counts["HIGH"]:
+              blockers.append(f"{name}: CRITICAL={counts['CRITICAL']}, HIGH={counts['HIGH']}")
+
+      status = "BLOCKED" if blockers else "PASSED"
+      recommendations = []
+      if verified:
+          recommendations.append("Revoke detected secrets, remove them from Git history and rotate affected credentials.")
+      if bandit_high:
+          recommendations.append("Review and remediate HIGH severity Bandit findings.")
+      if audit_vulns:
+          recommendations.append("Review pip-audit findings and upgrade affected Python dependencies to fixed versions.")
+      if fs["CRITICAL"] or fs["HIGH"]:
+          recommendations.append("Remediate CRITICAL/HIGH filesystem findings reported by Trivy.")
+      if image["CRITICAL"] or image["HIGH"]:
+          recommendations.append("Update application/base-image packages responsible for CRITICAL/HIGH Trivy image findings.")
+      if not recommendations:
+          recommendations.append("No blocking findings detected.")
+
+      print("=== SECURITY GATEWAY SUMMARY ===")
+      for line in summary:
+          print(line)
+
+      report = [
+          "# Security Gateway Report",
+          "",
+          f"Status: **{status}**",
+          "",
+          "## Summary",
+          "",
+          *[f"- {line}" for line in summary],
+          "",
+          "## Blocking policy",
+          "",
+          "- Verified secrets: BLOCK",
+          "- Bandit HIGH: BLOCK",
+          "- Trivy CRITICAL/HIGH: BLOCK",
+          "- pip-audit findings: report-only",
+          "- Medium/Low findings: report-only",
+          "",
+          "## Blockers",
+          "",
+          *([f"- {item}" for item in blockers] if blockers else ["- None"]),
+          "",
+          "## Recommendations",
+          "",
+          *[f"- {item}" for item in recommendations],
+          "",
+          f"Pipeline: {__import__('os').environ.get('CI_PIPELINE_URL', '')}",
+          f"Commit: {__import__('os').environ.get('CI_COMMIT_SHA', '')}",
+      ]
+      pathlib.Path("security-gateway-report.md").write_text("\n".join(report) + "\n", encoding="utf-8")
+
+      machine = {
+          "status": status,
+          "summary": summary,
+          "blockers": blockers,
+          "recommendations": recommendations,
+      }
+      pathlib.Path("security-gateway-report.json").write_text(
+          json.dumps(machine, indent=2, ensure_ascii=False) + "\n",
+          encoding="utf-8",
+      )
+
+      if blockers:
+          print("\nRELEASE BLOCKED")
+          for item in blockers:
+              print(f"- {item}")
+          sys.exit(1)
+
+      print("\nSECURITY GATEWAY PASSED")
+      PY
+
+  artifacts:
+    when: always
+    paths:
+      - security-gateway-report.md
+      - security-gateway-report.json
+      - bandit-report.json
+      - semgrep-report.json
+      - trufflehog-report.json
+      - pip-audit-report.json
+      - trivy-fs-report.json
+      - trivy-config-report.json
+      - trivy-image-report.json
+    expire_in: 1 week
+
+security:zap-baseline:
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "main"'
+
+  stage: security-scan
+  tags:
+    - thrdlabapp
+    - security
+    - dast
+  image: ghcr.io/zaproxy/zaproxy:stable
+  needs:
+    - build:image
+
+  variables:
+    POSTGRES_DB: electrochemistry_ci
+    POSTGRES_USER: postgres
+    POSTGRES_PASSWORD: ci-only-database-password
+    PGDATABASE: electrochemistry_ci
+    PGUSER: postgres
+    PGPASSWORD: ci-only-database-password
+    PGHOST: db
+    PGPORT: "5432"
+    DEBUG: "false"
+    SECRET_KEY: "ci-only-key-$CI_PIPELINE_ID-$CI_JOB_ID-never-used-in-production"
+    ALLOWED_HOSTS: "app,localhost,127.0.0.1"
+    CSRF_TRUSTED_ORIGINS: "http://app:8000"
+
+  services:
+    - name: postgres:15-alpine
+      alias: db
+    - name: "$DOCKERHUB_USERNAME/thrdlabapp-devsecops-diploma:$CI_COMMIT_SHORT_SHA"
+      alias: app
+      command: ["sh", "ci/start-test-app.sh"]
+
+  script:
+    - |
+      ready=false
+      for attempt in $(seq 1 60); do
+        if curl --fail --silent http://app:8000/ --output /dev/null; then
+          ready=true
+          break
+        fi
+        sleep 2
+      done
+      test "$ready" = true
+    - mkdir -p /zap/wrk
+    - |
+      status=0
+      zap-baseline.py -t http://app:8000/ -J zap-report.json -r zap-report.html -w zap-report.md || status=$?
+      test "$status" -le 2
+    - cp /zap/wrk/zap-report.* .
+
+  artifacts:
+    when: always
+    paths:
+      - zap-report.json
+      - zap-report.html
+      - zap-report.md
+    expire_in: 1 week
+
+  allow_failure: true

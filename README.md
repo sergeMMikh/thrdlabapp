@@ -1,3 +1,5 @@
+> Application + DevSecOps integration: see [INTEGRATION.md](INTEGRATION.md). GitLab CI performs checks; deployment to the LAN host is manual.
+
 ## Django Template
 
 [![Deploy on Railway](https://railway.app/button.svg)](https://railway.app/new/template/GB6Eki?referralCode=U5zXSw)
