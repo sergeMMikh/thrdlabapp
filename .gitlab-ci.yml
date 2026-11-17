@@ -479,7 +479,9 @@ security:gateway:
       audit = load("pip-audit-report.json", {})
       audit_vulns = sum(len(dep.get("vulns", []))
                         for dep in audit.get("dependencies", [])) if isinstance(audit, dict) else 0
-      summary.append(f"pip-audit vulnerabilities: {audit_vulns} (report-only)")
+      summary.append(f"pip-audit vulnerabilities: {audit_vulns}")
+      if audit_vulns:
+          blockers.append(f"pip-audit: {audit_vulns} vulnerability finding(s)")
 
       def trivy(path):
           report = load(path, {})
@@ -533,7 +535,7 @@ security:gateway:
           "- Verified secrets: BLOCK",
           "- Bandit HIGH: BLOCK",
           "- Trivy CRITICAL/HIGH: BLOCK",
-          "- pip-audit findings: report-only",
+          "- pip-audit findings: BLOCK",
           "- Medium/Low findings: report-only",
           "",
           "## Blockers",
@@ -597,6 +599,7 @@ security:zap-baseline:
     - build:image
 
   variables:
+    FF_NETWORK_PER_BUILD: "true"
     POSTGRES_DB: electrochemistry_ci
     POSTGRES_USER: postgres
     POSTGRES_PASSWORD: ci-only-database-password

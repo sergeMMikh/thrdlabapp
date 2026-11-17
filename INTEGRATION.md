@@ -33,3 +33,9 @@ Read GitLab credentials from the host's untracked `.env`; never commit or print
 
 The diploma reports in README-en.md, SECURITY-REMEDIATION.md and img/ are historical
 documentation, not instructions to redeploy the former public environment.
+
+The first integrated audit found three new advisories in DRF 3.18.1
+(CVE-2026-114136, CVE-2026-114137, CVE-2026-114138). DRF is updated to
+3.18.2, the fixed version reported by pip-audit. Dependency findings now block
+the security gate instead of being report-only. CI DAST uses a per-build network
+so the disposable application and PostgreSQL can resolve each other's aliases.
