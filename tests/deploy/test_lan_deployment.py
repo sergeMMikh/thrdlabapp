@@ -27,6 +27,8 @@ def test_static_update_and_rollback_preserve_the_tracked_directory(
     monkeypatch.setattr(deploy_lan, 'PROJECT', tmp_path)
     private = tmp_path / '.deployment'
     private.mkdir()
+    compose_snapshot = private / 'active.compose.yaml'
+    compose_snapshot.write_text('previous-compose-config')
     monkeypatch.setattr(deploy_lan, 'PRIVATE', private)
     monkeypatch.setattr(deploy_lan, 'DROPIN', tmp_path / 'test-container.conf')
     monkeypatch.setattr(deploy_lan, 'run', lambda *args: '')
@@ -46,6 +48,7 @@ def test_static_update_and_rollback_preserve_the_tracked_directory(
     state = {'static': str(candidate)}
 
     deploy_lan.activate_static(state, controls, release)
+    compose_snapshot.write_text('new-compose-config')
     assert active.is_dir() and not active.is_symlink()
     assert (active / '.gitkeep').is_file()
     assert (active / 'logo.png').read_bytes() == b'updated-logo'
@@ -54,6 +57,7 @@ def test_static_update_and_rollback_preserve_the_tracked_directory(
     assert active.is_dir() and not active.is_symlink()
     assert (active / '.gitkeep').is_file()
     assert (active / 'logo.png').read_bytes() == b'original-logo'
+    assert compose_snapshot.read_text() == 'previous-compose-config'
 
 
 def test_deployment_rejects_an_allowed_failure_in_the_pipeline(monkeypatch):

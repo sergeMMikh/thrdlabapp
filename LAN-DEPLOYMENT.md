@@ -44,10 +44,12 @@ configuration change; changing it invalidates existing signed sessions.
 python3 scripts/deploy_lan.py --status
 systemctl status thrdlabapp.service
 docker compose --project-name thrdlabapp-lan --env-file .deployment/active.env \
-  -f compose.lan.yaml ps
+  -f .deployment/active.compose.yaml ps
 python3 scripts/deploy_lan.py --rollback
 ```
 
+The active Compose configuration is snapshotted alongside the image digest, so a
+later git pull cannot change a running release or its rollback configuration.
 The systemd service keeps its existing name. A drop-in replaces the host Gunicorn
 command with foreground Compose using `--no-build --pull never`. The application's
 container restart policy and systemd start it after reboot. Logs stay bounded and

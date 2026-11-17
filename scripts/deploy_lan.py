@@ -171,6 +171,7 @@ def save_controls(release):
     controls = {'static_changed': False}
     for name, path in (
         ('dropin', DROPIN), ('active', PRIVATE / 'active.env'),
+        ('compose', PRIVATE / 'active.compose.yaml'),
         ('state', PRIVATE / 'state.json'),
     ):
         controls[name] = path.exists()
@@ -223,7 +224,7 @@ def compose(*command):
     return run(
         'docker', 'compose', '--project-name', 'thrdlabapp-lan',
         '--env-file', str(PRIVATE / 'active.env'),
-        '-f', str(PROJECT / 'compose.lan.yaml'), *command,
+        '-f', str(PRIVATE / 'active.compose.yaml'), *command,
     )
 
 
@@ -269,8 +270,11 @@ def restore(release):
             stamp = str(time.time_ns())
             active.rename(PROJECT / 'static-releases' / ('rolled-back-' + stamp))
         Path(controls['previous_static']).rename(active)
-    for name in ('active', 'state'):
-        target = PRIVATE / ('active.env' if name == 'active' else 'state.json')
+    for name, filename in (
+        ('active', 'active.env'), ('compose', 'active.compose.yaml'),
+        ('state', 'state.json'),
+    ):
+        target = PRIVATE / filename
         if controls[name]:
             shutil.copyfile(release / f'{name}.before', target)
             target.chmod(0o600)
@@ -322,6 +326,8 @@ def deploy(source, pipeline_id, container):
             'APP_IMAGE': state['image'], 'APP_RUNTIME_ENV': state['runtime_env'],
             'APP_DB_NETWORK': state['network'],
         })
+        private_text(PRIVATE / 'active.compose.yaml',
+                     (PROJECT / 'compose.lan.yaml').read_text())
         compose('config', '--quiet')
         install_service(release)
         run('sudo', '-n', 'systemctl', 'start', SERVICE)
