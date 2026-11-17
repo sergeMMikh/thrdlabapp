@@ -17,12 +17,13 @@ All SSH deployment jobs and `DEPLOY_*` variable requirements have been removed.
 The database password and Django key in the DAST job are disposable test values.
 The baseline DAST warnings remain advisory, as in the original pipeline.
 
-The service on `ssh 160` is deployed manually after CI passes. It continues to use
-the existing PostgreSQL database and systemd service behind nginx. Keep a database
-dump and the old virtual environment before applying migrations or replacing the
-runtime. After installation run `pip check`, `manage.py check`,
-`manage.py migrate --plan`, migrations and collectstatic, restart
-`thrdlabapp.service`, and verify the main, furnace, booking and admin pages.
+The service on `ssh 160` runs the ready-made Docker Hub image after CI passes.
+Deployment verifies the pipeline and OCI revision label, pins the image digest,
+backs up the database, applies migrations, and checks health and main pages.
+PostgreSQL remains the existing external container; nginx stays on the host.
+Static files are collected during the CI image build and copied from that exact
+artifact. No image build, pip installation or collectstatic runs on the LAN host.
+See [LAN-DEPLOYMENT.md](LAN-DEPLOYMENT.md) for update and rollback commands.
 
 Use `requirements.txt` for runtime, `requirements-test.txt` for tests,
 `requirements-lint.txt` for linting, and `requirements-dev.txt` for all developer

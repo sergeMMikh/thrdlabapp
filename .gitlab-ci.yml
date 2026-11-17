@@ -266,7 +266,11 @@ build:image:
     - IMAGE="$DOCKERHUB_USERNAME/thrdlabapp-devsecops-diploma"
     - TAG="$CI_COMMIT_SHORT_SHA"
     - echo "Building Docker image with tag $TAG"
-    - docker build --pull -t "$IMAGE:$TAG" -t "$IMAGE:latest" .
+    - >
+      docker build --pull
+      --label "org.opencontainers.image.revision=$CI_COMMIT_SHA"
+      --label "org.opencontainers.image.source=$CI_PROJECT_URL"
+      -t "$IMAGE:$TAG" -t "$IMAGE:latest" .
     - docker push "$IMAGE:$TAG"
     - docker push "$IMAGE:latest"
     - echo "Docker image published successfully"

@@ -1,4 +1,7 @@
 .git
+.deployment
+static-releases
+.staticfiles.next
 .github
 .idea
 .venv

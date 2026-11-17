@@ -1,0 +1,45 @@
+# Deploy the CI-built image only. The existing PostgreSQL container is external.
+services:
+  web:
+    image: ${APP_IMAGE:?Use scripts/deploy_lan.py to select a verified digest}
+    restart: unless-stopped
+    env_file:
+      - path: ${APP_RUNTIME_ENV:?Runtime environment was not prepared}
+        format: raw
+    ports:
+      - "127.0.0.1:8000:8000"
+    command:
+      - gunicorn
+      - mysite.wsgi:application
+      - --bind
+      - 0.0.0.0:8000
+      - --workers
+      - "${WEB_CONCURRENCY:-1}"
+      - --timeout
+      - "60"
+      - --worker-tmp-dir
+      - /tmp
+    read_only: true
+    tmpfs:
+      - /tmp:rw,nosuid,noexec,size=64m
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      interval: 10s
+      timeout: 5s
+      start_period: 10s
+      retries: 3
+    logging:
+      driver: json-file
+      options:
+        max-size: "10m"
+        max-file: "3"
+    networks:
+      - existing_db
+
+networks:
+  existing_db:
+    external: true
+    name: ${APP_DB_NETWORK:?Existing PostgreSQL network is required}
