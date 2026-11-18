@@ -228,12 +228,19 @@ def compose(*command):
     )
 
 
-def healthy():
+def healthy(expected_image):
     deadline = time.monotonic() + 90
     while time.monotonic() < deadline:
-        container = compose('ps', '--all', '--quiet', 'web')
-        if container:
-            info = json.loads(run('docker', 'inspect', container))[0]
+        containers = compose('ps', '--all', '--quiet', 'web').splitlines()
+        for container in containers:
+            try:
+                info = json.loads(run('docker', 'inspect', container))[0]
+            except RuntimeError:
+                # Compose can list both generations while replacing a container;
+                # the old ID may disappear between ps and inspect.
+                continue
+            if info['Config']['Image'] != expected_image:
+                continue
             health = info['State'].get('Health', {}).get('Status')
             if health == 'healthy':
                 names = {item.split('=', 1)[0] for item in info['Config']['Env']}
@@ -287,6 +294,11 @@ def restore(release):
         run('sudo', '-n', 'rm', '-f', str(DROPIN))
     run('sudo', '-n', 'systemctl', 'daemon-reload')
     run('sudo', '-n', 'systemctl', 'start', SERVICE)
+    if controls['state']:
+        state = json.loads((PRIVATE / 'state.json').read_text())
+        state['container'] = healthy(state['image'])
+        state['http_checks'] = check_pages()
+        private_text(PRIVATE / 'state.json', json.dumps(state, indent=2) + '\n')
     print('Previous application, service settings and static files restored.', flush=True)
 
 
@@ -331,7 +343,7 @@ def deploy(source, pipeline_id, container):
         compose('config', '--quiet')
         install_service(release)
         run('sudo', '-n', 'systemctl', 'start', SERVICE)
-        state['container'] = healthy()
+        state['container'] = healthy(state['image'])
         state['http_checks'] = check_pages()
         state['counts'] = after
         private_text(PRIVATE / 'state.json', json.dumps(state, indent=2) + '\n')

@@ -64,6 +64,10 @@ performs the same operation. Database migrations are not automatically reversed:
 the full dump is available for an explicitly planned database restore if a future
 migration is incompatible with the previous application version.
 
+Health verification tolerates the temporary old/new container pair during Compose
+recreation and accepts only the selected image digest. Container rollback also
+waits for health, checks HTTP pages and refreshes the recorded container ID.
+
 The initial migration to containers also retains the former host Python environment
 and systemd unit for rollback. Business record counts are checked before and after
 migrations; the deployment stops if they change.
