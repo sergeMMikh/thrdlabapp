@@ -1,0 +1,242 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <title>thrdlabapp — деплой готового образа на ssh 160</title>
+  <style>
+    :root { --ink: #153044; --muted: #496171; --line: #d6e1e7; --accent: #086b78; }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #f3f7f9; color: var(--ink); font: 17px/1.65 system-ui, sans-serif; }
+    main { max-width: 1060px; margin: auto; padding: 42px 28px 70px; }
+    header { border-top: 5px solid var(--accent); padding-top: 24px; }
+    .eyebrow { color: var(--accent); font-size: .8rem; font-weight: 750; letter-spacing: .1em; }
+    h1 { font-size: clamp(2rem, 5vw, 2.8rem); line-height: 1.15; margin: 10px 0 20px; }
+    h2 { font-size: 1.5rem; margin: 0 0 18px; line-height: 1.3; }
+    h3 { font-size: 1.1rem; margin-bottom: 8px; }
+    p { margin: 12px 0; }
+    a { color: #075a8a; text-underline-offset: 3px; }
+    a:focus-visible { outline: 3px solid #d87300; outline-offset: 4px; }
+    nav { display: flex; flex-wrap: wrap; gap: 10px 22px; margin: 26px 0; }
+    section { background: white; border: 1px solid var(--line); border-radius: 12px; padding: 28px; margin: 22px 0; scroll-margin-top: 20px; }
+    .lead, .muted { color: var(--muted); }
+    code { font: .88em/1.6 ui-monospace, Consolas, monospace; overflow-wrap: anywhere; }
+    :not(pre) > code { background: #eaf1f5; padding: 2px 5px; border-radius: 4px; }
+    pre { overflow-x: auto; background: #102d3d; color: #f0f8fc; border-radius: 8px; padding: 18px; tab-size: 2; }
+    pre code { overflow-wrap: normal; }
+    .flow { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; list-style: none; padding: 0; }
+    .flow li { background: #edf6f6; border-top: 3px solid var(--accent); border-radius: 6px; padding: 14px; }
+    .flow strong { display: block; }
+    .flow span { font-size: .9rem; color: var(--muted); }
+    .note { border-left: 4px solid #b46c00; padding: 12px 16px; background: #fff6e6; border-radius: 4px; }
+    .ok { border-left-color: var(--accent); background: #edf6f6; }
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: .94rem; }
+    th, td { padding: 12px; text-align: left; vertical-align: top; border-bottom: 1px solid var(--line); }
+    th { background: #edf3f6; }
+    li + li { margin-top: 8px; }
+    .flow li + li { margin-top: 0; }
+    footer { color: var(--muted); font-size: .88rem; }
+    @media (max-width: 700px) { main { padding: 22px 14px 40px; } section { padding: 20px; } .flow { grid-template-columns: 1fr 1fr; } }
+    @media print { body { background: white; font-size: 11pt; } main { max-width: none; padding: 0; } nav { display: none; } section { break-inside: avoid; padding: 16px; } pre { white-space: pre-wrap; color: black; background: #eee; } a { color: black; } }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <div class="eyebrow">TEMA LABORATORY · ИНСТРУКЦИЯ ЭКСПЛУАТАЦИИ</div>
+    <h1>Деплой готового образа<br>на <code>ssh 160</code></h1>
+    <p class="lead">GitLab собирает и проверяет приложение, Docker Hub хранит образ,
+      а сервер <code>192.168.1.160</code> загружает готовый артефакт и запускает его.
+      Сборка образа, установка Python-зависимостей и <code>collectstatic</code> выполняются в CI.</p>
+    <nav aria-label="Разделы инструкции">
+      <a href="#architecture">Схема</a><a href="#requirements">Подготовка</a>
+      <a href="#update">Обновление</a><a href="#checks">Проверка</a>
+      <a href="#rollback">Откат</a><a href="#troubleshooting">Диагностика</a>
+    </nav>
+  </header>
+
+  <section id="architecture" aria-labelledby="architecture-title">
+    <h2 id="architecture-title">1. Как устроен деплой</h2>
+    <ol class="flow" aria-label="Последовательность доставки">
+      <li><strong>1 · GitLab main</strong><span>Код, тесты, анализ исходников и зависимостей</span></li>
+      <li><strong>2 · Docker Hub</strong><span>Сборка образа, публикация с тегом commit SHA</span></li>
+      <li><strong>3 · Проверки CI</strong><span>Сканирование образа, DAST и Security Gateway</span></li>
+      <li><strong>4 · ssh 160</strong><span>Pull → бэкап → миграции → запуск → HTTP-проверки</span></li>
+    </ol>
+    <p>Pipeline не подключается к локальной сети. Оператор запускает
+      <code>scripts/deploy_lan.py</code> на сервере после успешного завершения CI.
+      Само появление образа в Docker Hub ещё не означает, что проверки пройдены.</p>
+    <div class="table-wrap"><table>
+      <caption>Компоненты на сервере</caption>
+      <thead><tr><th scope="col">Компонент</th><th scope="col">Назначение</th></tr></thead>
+      <tbody>
+        <tr><td>nginx на хосте</td><td>Принимает HTTP на порту 80, отдаёт статику и передаёт запросы приложению.</td></tr>
+        <tr><td><code>thrdlabapp.service</code></td><td>Запускает Docker Compose. Сервис включён для старта после перезагрузки.</td></tr>
+        <tr><td><code>thrdlabapp-lan-web-1</code></td><td>Gunicorn с одним worker; публикация только на <code>127.0.0.1:8000</code>.</td></tr>
+        <tr><td><code>pg-standalone</code></td><td>Существующий PostgreSQL и его том. Приложение подключается через внешнюю Docker-сеть; новая база при деплое не создаётся.</td></tr>
+        <tr><td><code>/home/smm/thrdlabapp/staticfiles/</code></td><td>Статика, извлечённая из того же проверенного образа, который запускает приложение.</td></tr>
+      </tbody>
+    </table></div>
+    <p>Образ: <code>sergemmikh/thrdlabapp-devsecops-diploma:&lt;первые 8 символов SHA&gt;</code>.
+      После загрузки скрипт сверяет OCI-метку полного SHA и фиксирует
+      <code>repository@sha256:…</code>. Тег <code>latest</code> для запуска не используется.</p>
+    <p>Контейнер работает пользователем <code>django</code>, с файловой системой только
+      для чтения, временным <code>/tmp</code>, без Linux capabilities и с
+      <code>no-new-privileges</code>. Логи ограничены тремя файлами по 10 МБ.</p>
+  </section>
+
+  <section id="requirements" aria-labelledby="requirements-title">
+    <h2 id="requirements-title">2. Что должно быть настроено</h2>
+    <ul>
+      <li>SSH-профиль <code>160</code> на компьютере оператора; пользователь сервера — <code>smm</code>.</li>
+      <li>Репозиторий <code>/home/smm/thrdlabapp</code> с remote <code>gitlab</code>:
+        <code>git@gitlab.com:sergeMMikh/thrdlabapp-devsecops.git</code>.
+        На текущем сервере fetch использует локальную настройку перенаправления на HTTPS.</li>
+      <li>Docker Engine, Docker Compose ≥ 2.30 и Python ≥ 3.10.
+        Пользователь <code>smm</code> имеет доступ к Docker и управлению сервисом через <code>sudo -n</code>.</li>
+      <li>Доступ с сервера к GitLab API и Docker Hub. PostgreSQL <code>pg-standalone</code> запущен и подключён к одной Docker-сети.</li>
+      <li>В GitLab CI настроены <code>DOCKERHUB_USERNAME</code>, <code>DOCKERHUB_TOKEN</code> и соответствующие runner.</li>
+    </ul>
+    <p>Сохранённый <code>.env</code> на сервере должен содержать <code>GITLAB_TOKEN</code>
+      с правом чтения API проекта, параметры <code>PGDATABASE</code>, <code>PGUSER</code>,
+      <code>PGPASSWORD</code> и действующие настройки Django. Файл исключён из Git и контекста сборки;
+      права доступа — <code>600</code>. Значения секретов в документацию и команды не копируются.</p>
+    <p>Скрипт формирует отдельный runtime env только из разрешённых параметров приложения.
+      GitLab-токен и CI-учётные данные в контейнер не передаются. <code>PGHOST</code> задаётся
+      как имя существующего контейнера БД. Сохраняйте действующий стабильный
+      <code>SECRET_KEY</code>: его смена влияет на подписанные сессии.</p>
+    <div class="note">Перед запуском предусмотрите короткое окно недоступности: приложение
+      останавливается на время бэкапа, миграций и переключения. Для несовместимых миграций
+      заранее нужен план восстановления БД.</div>
+  </section>
+
+  <section id="update" aria-labelledby="update-title">
+    <h2 id="update-title">3. Обновление приложения</h2>
+    <ol>
+      <li>Опубликуйте изменения в <code>main</code> GitLab и откройте
+        <a href="https://gitlab.com/sergeMMikh/thrdlabapp-devsecops/-/pipelines">список pipeline</a>.
+        Дождитесь успеха всех jobs, включая сканеры с <code>allow_failure</code>.
+        Возьмите числовой ID pipeline из его страницы.</li>
+      <li>Подключитесь к серверу и обновите служебные файлы из той же версии кода:
+        <pre><code>ssh 160
+cd /home/smm/thrdlabapp
+git status --short
+git pull --ff-only gitlab main</code></pre>
+        <p>Сохраните собственные изменения до обновления. Скрипт требует точного совпадения
+          локального <code>HEAD</code> и SHA выбранного pipeline. Если <code>main</code> уже ушёл
+          вперёд, дождитесь успешного pipeline для актуального коммита.</p>
+      </li>
+      <li>Запустите деплой, подставив настоящий ID вместо <code>PIPELINE_ID</code>:
+        <pre><code>python3 scripts/deploy_lan.py --pipeline PIPELINE_ID</code></pre>
+        <p>Дождитесь завершения команды. Не запускайте одновременно второй деплой или откат.</p>
+      </li>
+    </ol>
+    <h3>Что делает команда</h3>
+    <ol>
+      <li>Проверяет через GitLab API успешный pipeline ветки <code>main</code>, результаты всех jobs и совпадение SHA.</li>
+      <li>Загружает образ, проверяет OCI revision и фиксирует его digest. Извлекает уже собранную статику; запускает Django <code>check</code> и план миграций в одноразовом контейнере.</li>
+      <li>Сохраняет прежние настройки сервиса и релиза, останавливает приложение,
+        создаёт полный дамп PostgreSQL <code>postgres-all.sql.gz</code> и проверяет читаемость gzip.</li>
+      <li>Считает основные записи приложения, применяет миграции и повторно сверяет количества.
+        Это контроль сохранности количества записей, а не полная проверка содержимого базы.</li>
+      <li>Переключает статику, сохраняет Compose-конфигурацию и digest релиза, устанавливает
+        systemd drop-in и запускает сервис с <code>--no-build --pull never</code>.</li>
+      <li>Ждёт <code>healthy</code> до 90 секунд, проверяет семь HTTP-адресов и сохраняет результат.
+        Ошибка после остановки сервиса запускает восстановление прежнего приложения и статики.</li>
+    </ol>
+    <p>На сервере не выполняются <code>docker build</code>, <code>pip install</code> или
+      <code>collectstatic</code>. Миграции и служебные команды Django используют загруженный образ.</p>
+  </section>
+
+  <section id="checks" aria-labelledby="checks-title">
+    <h2 id="checks-title">4. Проверка результата и логи</h2>
+    <pre><code>cd /home/smm/thrdlabapp
+python3 scripts/deploy_lan.py --status
+systemctl is-active thrdlabapp.service
+systemctl is-enabled thrdlabapp.service
+docker compose --project-name thrdlabapp-lan \
+  --env-file .deployment/active.env -f .deployment/active.compose.yaml ps
+curl --fail --silent --output /dev/null --write-out '%{http_code}\n' http://192.168.1.160/</code></pre>
+    <p>Ожидаемые результаты: сервис <code>active</code> и <code>enabled</code>, контейнер
+      <code>healthy</code>, HTTP <code>200</code>. В <code>--status</code> видны pipeline,
+      SHA, digest, каталог релиза, проверенные адреса и количества записей.</p>
+    <p>Автоматически проверяются <code>/</code>, <code>/furnaces/</code>,
+      <code>/furnaces/furnace-booking/</code>, <code>/furnaces/equipments/</code>,
+      <code>/furnaces/equipment-booking/</code>, <code>/admin/login/</code> и
+      <code>/static/main/img/neon-tga-icon.png</code>. После обновления также откройте
+      приложение в браузере и проверьте нужный пользовательский сценарий.</p>
+    <pre><code>journalctl -u thrdlabapp.service -n 100 --no-pager
+docker compose --project-name thrdlabapp-lan \
+  --env-file .deployment/active.env -f .deployment/active.compose.yaml logs --tail 100 web</code></pre>
+    <h3>Где лежат состояние и резервные копии</h3>
+    <div class="table-wrap"><table>
+      <thead><tr><th scope="col">Путь относительно проекта</th><th scope="col">Содержимое</th></tr></thead>
+      <tbody>
+        <tr><td><code>.deployment/state.json</code></td><td>Последний успешно проверенный релиз.</td></tr>
+        <tr><td><code>.deployment/active.env</code>, <code>active.compose.yaml</code></td><td>Digest, пути и снимок Compose; последующий git pull не меняет активную конфигурацию сервиса.</td></tr>
+        <tr><td><code>.deployment/&lt;UTC-время&gt;-&lt;SHA&gt;/</code></td><td>Дамп БД, runtime env, настройки для отката, <code>controls.json</code> и результат <code>verified.json</code> при успехе.</td></tr>
+        <tr><td><code>static-releases/</code></td><td>Предыдущая статика и файлы для переключения или отката.</td></tr>
+      </tbody>
+    </table></div>
+    <p>Каталог <code>.deployment</code> имеет права <code>700</code>, файлы с данными и
+      настройками — <code>600</code>. Не публикуйте runtime env, дампы и файлы
+      <code>*.before</code>: они могут содержать секреты. Храните резервные копии отдельно
+      от сервера по принятой политике; скрипт автоматически их не удаляет.</p>
+  </section>
+
+  <section id="rollback" aria-labelledby="rollback-title">
+    <h2 id="rollback-title">5. Откат</h2>
+    <p>Для возврата к состоянию непосредственно перед последним успешным деплоем:</p>
+    <pre><code>cd /home/smm/thrdlabapp
+python3 scripts/deploy_lan.py --rollback
+systemctl is-active thrdlabapp.service
+curl --fail --silent --output /dev/null --write-out '%{http_code}\n' http://192.168.1.160/</code></pre>
+    <p>Команда возвращает предыдущие настройки systemd, образ, runtime env,
+      Compose-конфигурацию, статику и состояние релиза. При первом переходе на контейнер
+      сохранён прежний сервис с хостовым Python-окружением.</p>
+    <div class="note"><strong>База данных автоматически не откатывается.</strong>
+      Возврат старого кода безопасен только при совместимой схеме. Для несовместимой
+      миграции восстановление из <code>postgres-all.sql.gz</code> планируется отдельно:
+      оно может затронуть записи, созданные после бэкапа. Универсальная команда
+      восстановления здесь намеренно не приводится.</div>
+    <p>После автоматического отката из-за ошибки сначала проверьте сервис и логи.
+      Повторный ручной <code>--rollback</code> использует последний успешный релиз из
+      <code>state.json</code> и может вернуть ещё более раннюю версию.</p>
+  </section>
+
+  <section id="troubleshooting" aria-labelledby="troubleshooting-title">
+    <h2 id="troubleshooting-title">6. Если обновление остановилось</h2>
+    <div class="table-wrap"><table>
+      <thead><tr><th scope="col">Ситуация</th><th scope="col">Действие</th></tr></thead>
+      <tbody>
+        <tr><td>Pipeline или один из jobs неуспешен</td><td>Исправьте причину в GitLab и дождитесь полного успеха. Скрипт отклоняет даже сбой advisory-сканера.</td></tr>
+        <tr><td>Локальный SHA не совпадает с pipeline</td><td>Проверьте <code>git status</code>, выполните fast-forward обновление и выберите pipeline этого коммита.</td></tr>
+        <tr><td>GitLab API отвечает 401/403</td><td>Проверьте срок и доступ токена в серверном <code>.env</code>. Не выводите его в терминал и логи.</td></tr>
+        <tr><td>Ошибка pull, OCI revision или digest</td><td>Проверьте доступ к Docker Hub и job сборки. Не подменяйте образ на <code>latest</code> вручную.</td></tr>
+        <tr><td>Бэкап, миграции или сверка записей не прошли</td><td>Изучите ошибку и каталог релиза. Проверьте возврат сервиса; не удаляйте дамп и не запускайте восстановление БД без плана.</td></tr>
+        <tr><td>Контейнер не стал healthy или HTTP-проверка не прошла</td><td>Посмотрите journal и Compose logs. Скрипт пытается восстановить прошлое приложение; подтвердите результат через сервис и браузер.</td></tr>
+        <tr><td>Ошибка самого восстановления</td><td>Сохраните каталог неуспешного релиза и логи. Для диагностики используйте его <code>controls.json</code>; сначала установите фактическое состояние сервиса и БД.</td></tr>
+      </tbody>
+    </table></div>
+  </section>
+
+  <section aria-labelledby="reference-title">
+    <h2 id="reference-title">7. Проверенная исходная установка</h2>
+    <p>Переход на готовый образ проверен на коммите <code>ea760870</code>:
+      <a href="https://gitlab.com/sergeMMikh/thrdlabapp-devsecops/-/pipelines/3080452954">pipeline 3080452954</a>,
+      71 тест без ошибок и пропусков, Security Gateway — <code>PASSED</code>.
+      Проверены healthcheck, HTTP-страницы, логотип и сохранение количества основных записей БД.
+      Это историческая контрольная точка; текущую версию всегда смотрите через <code>--status</code>.</p>
+    <p>Digest исходного релиза:
+      <code>sha256:22b91ce2096b8f8656337de11aa33548e15fd72ca2b1a40bd877f3160049c36b</code>.</p>
+    <p class="note ok">Файл самодостаточен: его можно открыть с диска, скопировать отдельно
+      или распечатать в PDF. Стили встроены, внешние шрифты и JavaScript не используются.</p>
+  </section>
+  <footer>thrdlabapp · <a href="LAN-DEPLOYMENT.md">Краткая инструкция в Markdown</a> ·
+    <a href="INTEGRATION.md">Описание интеграции DevSecOps</a> ·
+    <a href="https://gitlab.com/sergeMMikh/thrdlabapp-devsecops">Репозиторий GitLab</a></footer>
+</main>
+</body>
+</html>

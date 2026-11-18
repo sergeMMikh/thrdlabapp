@@ -1,5 +1,7 @@
 # Deploy a tested Docker Hub artifact to ssh 160
 
+Полная автономная инструкция на русском: [LAN-DEPLOYMENT.html](LAN-DEPLOYMENT.html).
+
 CI builds and scans `sergemmikh/thrdlabapp-devsecops-diploma:<commit-short-sha>`.
 The image contains the application, pinned dependencies and collected static files.
 The host only pulls the image, checks its revision label, pins its SHA-256 digest,

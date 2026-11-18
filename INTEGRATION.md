@@ -23,7 +23,8 @@ backs up the database, applies migrations, and checks health and main pages.
 PostgreSQL remains the existing external container; nginx stays on the host.
 Static files are collected during the CI image build and copied from that exact
 artifact. No image build, pip installation or collectstatic runs on the LAN host.
-See [LAN-DEPLOYMENT.md](LAN-DEPLOYMENT.md) for update and rollback commands.
+See [LAN-DEPLOYMENT.md](LAN-DEPLOYMENT.md) for update and rollback commands,
+or open the standalone Russian [HTML deployment guide](LAN-DEPLOYMENT.html).
 
 Use `requirements.txt` for runtime, `requirements-test.txt` for tests,
 `requirements-lint.txt` for linting, and `requirements-dev.txt` for all developer
