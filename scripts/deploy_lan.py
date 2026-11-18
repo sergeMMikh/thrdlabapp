@@ -163,7 +163,7 @@ def extract_static(state):
         run('docker', 'rm', container)
     for path in destination.rglob('*'):
         path.chmod(0o755 if path.is_dir() else 0o644)
-    if not (destination / 'main/img/neon-tga-icon.png').is_file():
+    if not (destination / 'main/img/neon-electrochemistry-lab-badge.png').is_file():
         raise ValueError('The published image does not contain collected static files.')
 
 
@@ -254,7 +254,7 @@ def healthy(expected_image):
 def check_pages():
     paths = ('/', '/furnaces/', '/furnaces/furnace-booking/',
              '/furnaces/equipments/', '/furnaces/equipment-booking/',
-             '/admin/login/', '/static/main/img/neon-tga-icon.png')
+             '/admin/login/', '/static/main/img/neon-electrochemistry-lab-badge.png')
     for path in paths:
         with urllib.request.urlopen(
             'http://192.168.1.160' + path, timeout=10,
