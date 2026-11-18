@@ -72,6 +72,7 @@ aside .laboratory-logo {
     display: block;
     width: 100%;
     height: auto;
+    border-radius: 12%;
 }
 
 /* h3 headers "Navigation*/

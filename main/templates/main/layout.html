@@ -6,7 +6,7 @@
     <meta charset="UTF-8">
     <title>{% block title %}{% endblock %}</title>
     {% include 'main/styles.html' %}
-    <link rel="stylesheet" href="{% static 'main/css/main.css' %}?v=wide-logo">
+    <link rel="stylesheet" href="{% static 'main/css/main.css' %}?v=rounded-badge">
 </head>
 <body>
     <aside{% if side_bar_image %} style="background-image: url('{% static side_bar_image %}');"{% endif %}>
