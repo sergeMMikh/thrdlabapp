@@ -14,11 +14,21 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='equipment',
             name='laboratory',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='%(class)ss', to='furnace_booking.laboratory', verbose_name='laboratory'),
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name='%(class)ss',
+                to='furnace_booking.laboratory',
+                verbose_name='laboratory',
+            ),
         ),
         migrations.AlterField(
             model_name='furnace',
             name='laboratory',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.PROTECT, related_name='%(class)ss', to='furnace_booking.laboratory', verbose_name='laboratory'),
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.PROTECT,
+                related_name='%(class)ss',
+                to='furnace_booking.laboratory',
+                verbose_name='laboratory',
+            ),
         ),
     ]
