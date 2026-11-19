@@ -19,7 +19,7 @@ def forwards_func(apps, schema_editor):
         .values_list(
             'location',
             flat=True,
-        )
+        ),
     )
     locations.update(
         equipment_model.objects.exclude(location__isnull=True)
@@ -27,7 +27,7 @@ def forwards_func(apps, schema_editor):
         .values_list(
             'location',
             flat=True,
-        )
+        ),
     )
 
     laboratories = {}
