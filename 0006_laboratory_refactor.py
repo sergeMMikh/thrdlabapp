@@ -16,12 +16,18 @@ def forwards_func(apps, schema_editor):
     locations = set(
         furnace_model.objects.exclude(location__isnull=True)
         .exclude(location__exact='')
-        .values_list('location', flat=True,)
+        .values_list(
+            'location',
+            flat=True,
+        )
     )
     locations.update(
         equipment_model.objects.exclude(location__isnull=True)
         .exclude(location__exact='')
-        .values_list('location', flat=True,)
+        .values_list(
+            'location',
+            flat=True,
+        )
     )
 
     laboratories = {}
